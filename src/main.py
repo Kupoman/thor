@@ -23,6 +23,12 @@ class Game(ShowBase):
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
+		# Increase the texture resolution on DirectGui
+		default_font = DirectGuiGlobals.getDefaultFont()
+		default_font.clear()
+		default_font.setPixelsPerUnit(64)
+		DirectGuiGlobals.setDefaultFont(default_font)
+
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = Monster(name="Red", hp=250, recovery=1)
@@ -34,7 +40,7 @@ class Game(ShowBase):
 											 text_fg=(1, 1, 1, 1),
 											 text_shadow=(0, 0, 0, 1),
 											 frameColor=(0, 0, 0, 0),
-											 scale=0.1,
+											 scale=0.2,
 											 pos=(0, 0, 0.8))
 
 		_range = value = self.combatants['red'].current_hp
