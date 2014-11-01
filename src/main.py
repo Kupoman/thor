@@ -2,16 +2,13 @@
 import sys
 
 import os
-from direct.gui import DirectLabel
-
 os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
 
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.OnscreenImage import OnscreenImage
+from direct.gui import DirectGui
 
 from panda3d.core import *
-
-from direct.gui import DirectGui
 
 
 class Game(ShowBase):
