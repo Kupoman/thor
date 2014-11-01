@@ -10,6 +10,7 @@ from direct.gui import DirectGui, DirectGuiGlobals
 
 from panda3d.core import *
 
+from monster import Monster
 
 class Game(ShowBase):
 	def __init__(self):
@@ -17,6 +18,11 @@ class Game(ShowBase):
 
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
+
+		# Combatants
+		self.combatants = {}
+		self.combatants['red'] = Monster(name="Red", hp=250, recovery=1)
+		self.combatants['green'] = Monster(name="Green", hp=100, recovery=2)
 
 		# Combat vars
 		self.turn = 60
@@ -27,16 +33,15 @@ class Game(ShowBase):
 											 scale=0.1,
 											 pos=(0, 0, 0.8))
 
-		self.player_health = 100
-		self.player_max_health = 100
-		self.ui_player_health = DirectGui.DirectWaitBar(range=self.player_max_health,
-														value=self.player_health,
+		_range = value = self.combatants['red'].current_hp
+		self.ui_player_health = DirectGui.DirectWaitBar(range=_range,
+														value=value,
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(-0.8, 0, 0.4))
-		self.player_stamina = 100
+
 		self.ui_player_stamina = DirectGui.DirectWaitBar(range=100,
-														 value=self.player_stamina,
+														 value=0,
 														 barColor=(0, 0, 1, 1),
 														 scale=(0.3, 1, 0.15),
 														 pos=(-0.8, 0, 0.37))
@@ -53,16 +58,15 @@ class Game(ShowBase):
 			for i, v in enumerate(self.player_spells)
 		]
 
-		self.enemy_health = 100
-		self.enemy_max_health = 100
-		self.ui_enemy_health = DirectGui.DirectWaitBar(range=self.enemy_max_health,
-														value=self.enemy_health,
+		_range = value = self.combatants['green'].current_hp
+		self.ui_enemy_health = DirectGui.DirectWaitBar(range=_range,
+														value=value,
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(0.8, 0, 0.4))
-		self.enemy_stamina = 100
+
 		self.ui_enemy_stamina = DirectGui.DirectWaitBar(range=100,
-														 value=self.enemy_stamina,
+														 value=0,
 														 barColor=(0, 0, 1, 1),
 														 scale=(0.3, 1, 0.15),
 														 pos=(0.8, 0, 0.37))
@@ -74,15 +78,15 @@ class Game(ShowBase):
 
 	def main_loop(self, task):
 		self.turn -= 1
-		self.player_health -= 1
-		self.player_stamina -= 1
-		self.enemy_health -= 1
-		self.enemy_stamina -= 1
+		self.combatants['red'].current_hp -= 1
+		self.combatants['red'].current_stamina += self.combatants['red'].recovery
+		self.combatants['green'].current_hp -= 1
+		self.combatants['green'].current_stamina += self.combatants['green'].recovery
 		self.ui_turn['text'] = str(self.turn)
-		self.ui_player_health['value'] = self.player_health
-		self.ui_player_stamina['value'] = self.player_stamina
-		self.ui_enemy_health['value'] = self.enemy_health
-		self.ui_enemy_stamina['value'] = self.enemy_stamina
+		self.ui_player_health['value'] = self.combatants['red'].current_hp
+		self.ui_player_stamina['value'] = self.combatants['red'].current_stamina
+		self.ui_enemy_health['value'] = self.combatants['green'].current_hp
+		self.ui_enemy_stamina['value'] = self.combatants['green'].current_stamina
 		return task.cont
 
 
