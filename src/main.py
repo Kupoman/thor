@@ -6,7 +6,7 @@ os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
 
 from direct.showbase.ShowBase import ShowBase
 from direct.gui.OnscreenImage import OnscreenImage
-from direct.gui import DirectGui
+from direct.gui import DirectGui, DirectGuiGlobals
 
 from panda3d.core import *
 
@@ -25,6 +25,22 @@ class Game(ShowBase):
 											 scale=0.2,
 											 pos=(0, 0, 0.8))
 
+		self.player_health = 100
+		self.player_max_health = 100
+		self.ui_player_health = DirectGui.DirectWaitBar(range=self.player_max_health,
+														value=self.player_health,
+														barColor=(0, 1, 0, 1),
+														scale=0.3,
+														pos=(-0.8, 0, 0.4))
+
+		self.enemy_health = 100
+		self.enemy_max_health = 100
+		self.ui_enemy_health = DirectGui.DirectWaitBar(range=self.enemy_max_health,
+														value=self.enemy_health,
+														barColor=(0, 1, 0, 1),
+														scale=0.3,
+														pos=(0.8, 0, 0.4))
+
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
 		background = OnscreenImage(parent=render2dp, image="art/background.png")
@@ -32,7 +48,11 @@ class Game(ShowBase):
 
 	def main_loop(self, task):
 		self.turn -= 1
+		self.player_health -= 1
+		self.enemy_health -= 1
 		self.ui_turn['text'] = str(self.turn)
+		self.ui_player_health['value'] = self.player_health
+		self.ui_enemy_health['value'] = self.enemy_health
 		return task.cont
 
 
