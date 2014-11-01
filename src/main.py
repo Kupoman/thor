@@ -13,9 +13,13 @@ from panda3d.core import *
 from monster import Monster
 
 class Game(ShowBase):
+	def cb_next_turn(self):
+		self.turn_end = True
+
 	def __init__(self):
 		ShowBase.__init__(self)
 
+		self.accept("enter", self.cb_next_turn)
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
@@ -76,7 +80,12 @@ class Game(ShowBase):
 		background = OnscreenImage(parent=render2dp, image="art/background.png")
 		base.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
+		self.turn_end = False
+
 	def main_loop(self, task):
+		if not self.turn_end:
+			return task.cont
+
 		self.turn -= 1
 		self.combatants['red'].current_hp -= 1
 		self.combatants['red'].current_stamina += self.combatants['red'].recovery
@@ -87,6 +96,7 @@ class Game(ShowBase):
 		self.ui_player_stamina['value'] = self.combatants['red'].current_stamina
 		self.ui_enemy_health['value'] = self.combatants['green'].current_hp
 		self.ui_enemy_stamina['value'] = self.combatants['green'].current_stamina
+		self.turn_end = False
 		return task.cont
 
 
