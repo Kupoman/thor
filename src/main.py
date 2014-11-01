@@ -32,6 +32,12 @@ class Game(ShowBase):
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(-0.8, 0, 0.4))
+		self.player_stamina = 100
+		self.ui_player_stamina = DirectGui.DirectWaitBar(range=100,
+														 value=self.player_stamina,
+														 barColor=(0, 0, 1, 1),
+														 scale=(0.3, 1, 0.15),
+														 pos=(-0.8, 0, 0.37))
 		self.player_spells = [
 			('One', 'art/attacks/cold-fire.png'),
 			('Two', 'art/attacks/cure-1.png'),
@@ -52,6 +58,12 @@ class Game(ShowBase):
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(0.8, 0, 0.4))
+		self.enemy_stamina = 100
+		self.ui_enemy_stamina = DirectGui.DirectWaitBar(range=100,
+														 value=self.enemy_stamina,
+														 barColor=(0, 0, 1, 1),
+														 scale=(0.3, 1, 0.15),
+														 pos=(0.8, 0, 0.37))
 
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
@@ -61,10 +73,14 @@ class Game(ShowBase):
 	def main_loop(self, task):
 		self.turn -= 1
 		self.player_health -= 1
+		self.player_stamina -= 1
 		self.enemy_health -= 1
+		self.enemy_stamina -= 1
 		self.ui_turn['text'] = str(self.turn)
 		self.ui_player_health['value'] = self.player_health
+		self.ui_player_stamina['value'] = self.player_stamina
 		self.ui_enemy_health['value'] = self.enemy_health
+		self.ui_enemy_stamina['value'] = self.enemy_stamina
 		return task.cont
 
 
