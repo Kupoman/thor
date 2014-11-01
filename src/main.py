@@ -32,6 +32,18 @@ class Game(ShowBase):
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(-0.8, 0, 0.4))
+		self.player_spells = [
+			('One', 'art/attacks/cold-fire.png'),
+			('Two', 'art/attacks/cure-1.png'),
+		]
+		num_spells = len(self.player_spells) - 1
+		self.ui_player_spells = [
+			DirectGui.DirectButton(image=v[1],
+								   scale=0.1,
+								   pos=(-0.25*(num_spells - i), 0, -0.6),
+								   )
+			for i, v in enumerate(self.player_spells)
+		]
 
 		self.enemy_health = 100
 		self.enemy_max_health = 100
