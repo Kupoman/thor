@@ -20,7 +20,10 @@ class Game(ShowBase):
 
 		# Combat vars
 		self.turn = 60
-		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn), frameColor=(0, 0, 0, 0))
+		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn),
+											 frameColor=(0, 0, 0, 0),
+											 scale=0.2,
+											 pos=(0, 0, 0.8))
 
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
