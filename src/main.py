@@ -21,8 +21,10 @@ class Game(ShowBase):
 		# Combat vars
 		self.turn = 60
 		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn),
+											 text_fg=(1, 1, 1, 1),
+											 text_shadow=(0, 0, 0, 1),
 											 frameColor=(0, 0, 0, 0),
-											 scale=0.2,
+											 scale=0.1,
 											 pos=(0, 0, 0.8))
 
 		self.player_health = 100
