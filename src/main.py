@@ -14,12 +14,17 @@ from monster import Monster
 import commands
 
 
+class Trainer(object):
+	def __init__(self):
+		self.monster = None
+
+
 class GameState(object, DirectObject.DirectObject):
 	def __init__(self, _base):
 		DirectObject.DirectObject.__init__(self)
 		self.base = _base
 		self.ui_base = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
-		self.player_monster = _base.player_monster
+		self.player = _base.player
 
 	def update_ui(self):
 		pass
@@ -39,7 +44,7 @@ class CombatState(GameState):
 
 		# Combatants
 		self.combatants = {}
-		self.combatants['red'] = self.player_monster
+		self.combatants['red'] = self.player.monster
 		self.combatants['green'] = Monster(name="Green", stamina=2)
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
@@ -173,9 +178,9 @@ class FarmState(GameState):
 			self.ui_training_menu.hide()
 			self.ui_main_menu.show()
 		else:
-			prev_stat = getattr(self.player_monster, stat)
-			setattr(self.player_monster, stat, prev_stat + 1)
-			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player_monster, stat))
+			prev_stat = getattr(self.player.monster, stat)
+			setattr(self.player.monster, stat, prev_stat + 1)
+			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player.monster, stat))
 			print(result_str)
 			self.ui_training_results_text['text'] = result_str
 
@@ -244,8 +249,9 @@ class Game(ShowBase):
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
-		# Setup the player's monster
-		self.player_monster = Monster(name="Red", defense=2)
+		# Setup the player and the player's monster
+		self.player = Trainer()
+		self.player.monster = Monster(name="Red", defense=2)
 
 		# Setup game states
 		self.game_state = FarmState(self)
