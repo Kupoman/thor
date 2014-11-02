@@ -1,0 +1,10 @@
+{
+	"name" : "Sinbad",
+	"race" : "Ogre",
+	"attack" : 20,
+	"defense" : 25,
+	"intelligence" : 15,
+	"stamina" : 20,
+	"speed" : 20,
+	"visual" : "golem"
+}

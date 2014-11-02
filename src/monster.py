@@ -1,15 +1,24 @@
+import json
+
 import techniques
 
 
 class Monster(object):
 	@classmethod
+	def new_from_race(cls, race):
+		with open("data/race_%s.json" % race) as fin:
+			data = json.load(fin)
+		return Monster.deserialize(data)
+
+	@classmethod
 	def deserialize(cls, json_dictionary):
 		return Monster(**json_dictionary)
 
-	def __init__(self, name="Monster", attack=20, defense=20, intelligence=20,
-			stamina=20, speed=20):
+	def __init__(self, name="Monster", race="Unknown", visual="", attack=20,
+			defense=20, intelligence=20, stamina=20, speed=20):
 		self.name = name
-		self.race = "Unknown"
+		self.race = race
+		self.visual = visual
 
 		# Base Stats
 		self.attack = attack
@@ -74,6 +83,8 @@ class Monster(object):
 	def serialize(self):
 		data = {}
 		data['name'] = self.name
+		data['race'] = self.race
+		data['visual'] = self.visual
 		data['attack'] = self.attack
 		data['defense'] = self.defense
 		data['intelligence'] = self.intelligence

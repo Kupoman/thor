@@ -1,0 +1,10 @@
+{
+	"name" : "Clay",
+	"race" : "Golem",
+	"attack" : 20,
+	"defense" : 20,
+	"intelligence" : 25,
+	"stamina" : 20,
+	"speed" : 15,
+	"visual" : "golem"
+}
