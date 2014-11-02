@@ -158,7 +158,8 @@ class FarmState(GameState):
 		self.options = [
 			('Combat', self.do_combat),
 			('Training', self.do_training_menu),
-			('Monster Info', self.do_monster_stats)
+			('Monster Info', self.do_monster_stats),
+			('Exit Game', self.do_exit),
 		]
 
 		self.training_options = [
@@ -199,6 +200,9 @@ class FarmState(GameState):
 	def do_monster_stats(self):
 		self.ui_main_menu.hide()
 		self.ui_monster_stats.show()
+
+	def do_exit(self):
+		sys.exit()
 
 	def setup_ui(self):
 		# Main menu
