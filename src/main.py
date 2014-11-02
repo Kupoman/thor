@@ -36,8 +36,8 @@ class CombatState(GameState):
 
 		# Combatants
 		self.combatants = {}
-		self.combatants['red'] = Monster(name="Red", hp=250, recovery=1)
-		self.combatants['green'] = Monster(name="Green", hp=100, recovery=2)
+		self.combatants['red'] = Monster(name="Red", defense=2)
+		self.combatants['green'] = Monster(name="Green", stamina=2)
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
 
