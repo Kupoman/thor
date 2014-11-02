@@ -46,7 +46,11 @@ class CombatState(GameState):
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = self.player.monster
+		self.combatants['red'].current_stamina = 50
+		self.combatants['red'].current_hp = self.combatants['red'].hp
 		self.combatants['green'] = Monster(name="Green", stamina=25, attack=15)
+		self.combatants['green'].current_hp = self.combatants['green'].hp
+		self.combatants['green'].current_stamina = 50
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
 
