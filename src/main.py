@@ -50,12 +50,16 @@ class CombatState(GameState):
 			commands.Wait,
 			]
 
-		background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
+		self.background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
 		self.base.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
 		self.turn_end = False
 
 		self.setup_ui()
+
+	def destroy(self):
+		GameState.destroy(self)
+		self.background.destroy()
 
 	def cb_next_turn(self):
 		self.turn_end = True
