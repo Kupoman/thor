@@ -60,10 +60,14 @@ class Game(ShowBase):
 			('Two', 'art/attacks/cure-1.png'),
 		]
 		num_spells = len(self.player_spells) - 1
+		def cast_spell():
+			self.combatants['green'].current_hp -= 50
+			self.turn_end = True
 		self.ui_player_spells = [
 			DirectGui.DirectButton(image=v[1],
 								   scale=0.1,
 								   pos=(-0.25*(num_spells - i), 0, -0.6),
+								   command=cast_spell,
 								   )
 			for i, v in enumerate(self.player_spells)
 		]
