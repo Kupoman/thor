@@ -210,6 +210,8 @@ class FarmState(GameState):
 			btn.reparentTo(self.ui_main_menu)
 
 		self.ui_weeks = DirectGui.DirectLabel(text='',
+											  text_fg=(1, 1, 1, 1),
+											  text_shadow=(0, 0, 0, 1),
 											  scale=0.1,
 											  pos=(-1.0, 0, -0.9),
 											  )
