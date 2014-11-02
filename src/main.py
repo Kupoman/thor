@@ -19,9 +19,6 @@ class GameState(object, DirectObject.DirectObject):
 		DirectObject.DirectObject.__init__(self)
 		self.base = _base
 
-	def setup_ui(self):
-		pass
-
 	def update_ui(self):
 		pass
 
@@ -37,12 +34,6 @@ class CombatState(GameState):
 		GameState.__init__(self, _base)
 		self.accept("enter", self.cb_next_turn)
 
-		# Increase the texture resolution on DirectGui
-		default_font = DirectGuiGlobals.getDefaultFont()
-		default_font.clear()
-		default_font.setPixelsPerUnit(64)
-		DirectGuiGlobals.setDefaultFont(default_font)
-
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = Monster(name="Red", hp=250, recovery=1)
@@ -52,6 +43,22 @@ class CombatState(GameState):
 
 		# Combat vars
 		self.turn = 60
+		self.player_spells = [
+			commands.Attack,
+			commands.Wait,
+			]
+
+		background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
+		self.base.cam2dp.node().getDisplayRegion(0).setSort(-20)
+
+		self.turn_end = False
+
+		self.setup_ui()
+
+	def cb_next_turn(self):
+		self.turn_end = True
+
+	def setup_ui(self):
 		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn),
 											 text_fg=(1, 1, 1, 1),
 											 text_shadow=(0, 0, 0, 1),
@@ -71,10 +78,6 @@ class CombatState(GameState):
 														 barColor=(0, 0, 1, 1),
 														 scale=(0.3, 1, 0.15),
 														 pos=(-0.8, 0, 0.37))
-		self.player_spells = [
-			commands.Attack,
-			commands.Wait,
-			]
 		num_spells = len(self.player_spells) - 1
 		def use_command(command, combatant):
 			command.run(combatant)
@@ -102,32 +105,32 @@ class CombatState(GameState):
 														scale=(0.3, 1, 0.15),
 														pos=(0.8, 0, 0.37))
 
-		background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
-		self.base.cam2dp.node().getDisplayRegion(0).setSort(-20)
-
-		self.turn_end = False
-
-	def cb_next_turn(self):
-		self.turn_end = True
-
-	def main_loop(self):
-		if not self.turn_end:
-			return
-
-		self.turn -= 1
-		self.combatants['red'].current_stamina += self.combatants['red'].recovery
-		self.combatants['green'].current_stamina += self.combatants['green'].recovery
+	def update_ui(self):
 		self.ui_turn['text'] = str(self.turn)
 		self.ui_player_health['value'] = self.combatants['red'].current_hp
 		self.ui_player_stamina['value'] = self.combatants['red'].current_stamina
 		self.ui_enemy_health['value'] = self.combatants['green'].current_hp
 		self.ui_enemy_stamina['value'] = self.combatants['green'].current_stamina
-		self.turn_end = False
+
+	def main_loop(self):
+		GameState.main_loop(self)
+
+		if self.turn_end:
+			self.turn -= 1
+			self.combatants['red'].current_stamina += self.combatants['red'].recovery
+			self.combatants['green'].current_stamina += self.combatants['green'].recovery
+			self.turn_end = False
 
 
 class Game(ShowBase):
 	def __init__(self):
 		ShowBase.__init__(self)
+
+		# Increase the texture resolution on DirectGui
+		default_font = DirectGuiGlobals.getDefaultFont()
+		default_font.clear()
+		default_font.setPixelsPerUnit(64)
+		DirectGuiGlobals.setDefaultFont(default_font)
 
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
