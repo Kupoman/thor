@@ -101,9 +101,7 @@ class Game(ShowBase):
 			return task.cont
 
 		self.turn -= 1
-		self.combatants['red'].current_hp -= 1
 		self.combatants['red'].current_stamina += self.combatants['red'].recovery
-		self.combatants['green'].current_hp -= 1
 		self.combatants['green'].current_stamina += self.combatants['green'].recovery
 		self.ui_turn['text'] = str(self.turn)
 		self.ui_player_health['value'] = self.combatants['red'].current_hp
