@@ -165,14 +165,18 @@ class FarmState(GameState):
 		self.ui_training_menu.show()
 
 	def do_training(self, stat):
-		if stat != 'back':
+		if stat == 'back':
+			self.ui_training_menu.hide()
+			self.ui_main_menu.show()
+		else:
 			prev_stat = getattr(self.player_monster, stat)
-			print("Raising stat", stat, "from", prev_stat, "to ", end='')
 			setattr(self.player_monster, stat, prev_stat + 1)
-			print(getattr(self.player_monster, stat))
+			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player_monster, stat))
+			print(result_str)
+			self.ui_training_results_text['text'] = result_str
 
-		self.ui_training_menu.hide()
-		self.ui_main_menu.show()
+			self.ui_training_menu.hide()
+			self.ui_training_results.show()
 
 	def setup_ui(self):
 		# Main menu
@@ -200,6 +204,27 @@ class FarmState(GameState):
 										 pos=(0, 0, 0.8 - 0.3 * i),
 										 )
 			btn.reparentTo(self.ui_training_menu)
+
+		# Training results
+		self.ui_training_results = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_training_results.reparentTo(self.ui_base)
+		self.ui_training_results.hide()
+
+		self.ui_training_results_text = DirectGui.DirectLabel(text='',
+															  scale=0.2,
+															  pos=(0, 0, 0.6),
+															  )
+		self.ui_training_results_text.reparentTo(self.ui_training_results)
+
+		def training_results_okay():
+			self.ui_training_results.hide()
+			self.ui_main_menu.show()
+		self.ui_training_results_okay = DirectGui.DirectButton(text="Okay",
+															   command=training_results_okay,
+															   scale=0.2,
+															   pos=(0, 0, -0.2),
+															   )
+		self.ui_training_results_okay.reparentTo(self.ui_training_results)
 
 
 class Game(ShowBase):
