@@ -271,7 +271,7 @@ class FarmState(GameState):
 		self.ui_training_results_okay.reparentTo(self.ui_training_results)
 
 		# Monster stats
-		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(0.7, 0.7, 0.7, 1),
+		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(1, 1, 1, 0.33),
 													  frameSize=(-1, 1, -0.7, 0.9),
 													  relief=DirectGuiGlobals.GROOVE,
 													  borderWidth=(0.01, 0.01),
