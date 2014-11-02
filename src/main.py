@@ -19,6 +19,7 @@ class GameState(object, DirectObject.DirectObject):
 		DirectObject.DirectObject.__init__(self)
 		self.base = _base
 		self.ui_base = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.player_monster = _base.player_monster
 
 	def update_ui(self):
 		pass
@@ -38,7 +39,7 @@ class CombatState(GameState):
 
 		# Combatants
 		self.combatants = {}
-		self.combatants['red'] = Monster(name="Red", defense=2)
+		self.combatants['red'] = self.player_monster
 		self.combatants['green'] = Monster(name="Green", stamina=2)
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
@@ -179,6 +180,10 @@ class Game(ShowBase):
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
+		# Setup the player's monster
+		self.player_monster = Monster(name="Red", defense=2)
+
+		# Setup game states
 		self.game_state = FarmState(self)
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
