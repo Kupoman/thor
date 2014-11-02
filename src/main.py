@@ -15,9 +15,26 @@ import commands
 
 
 class Trainer(object):
+	@classmethod
+	def deserialize(cls, json_dictionary):
+		ret = cls()
+		ret.weeks = json_dictionary['weeks']
+		if 'monster' in json_dictionary:
+			ret.monster = Monster.deserialize(json_dictionary['monster'])
+
+		return ret
+
 	def __init__(self):
 		self.monster = None
 		self.weeks = 0
+
+	def serialize(self):
+		data = {}
+		data['weeks'] = self.weeks
+		if self.monster:
+			data['monster'] = self.monster.serialize()
+
+		return data
 
 
 class GameState(object, DirectObject.DirectObject):
