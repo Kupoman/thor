@@ -32,21 +32,18 @@ class Technique(object):
 
 	@classmethod
 	def use(cls, user, target):
+		# Apply cost
+		user.current_stamina -= cls.get_stamina_cost(user)
+
 		# Check for hit
-		cth = cls.get_chance_to_hit(user)
-		if random.random() > cth:
+		if random.random() > cls.get_chance_to_hit(user):
 			print("Missed!")
 			return
 
 		# Check for evade
-		dodge_roll = random.random()
-		print(dodge_roll, target.evasion)
-		if dodge_roll < target.evasion:
+		if random.random() < target.evasion:
 			print("Dodged!")
 			return
-
-		# Apply cost
-		user.current_stamina -= cls.get_stamina_cost(user)
 
 		# Apply damage
 		target.current_hp -= cls.get_damage_dealt(user)
