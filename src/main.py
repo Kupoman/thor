@@ -18,6 +18,7 @@ class GameState(object, DirectObject.DirectObject):
 	def __init__(self, _base):
 		DirectObject.DirectObject.__init__(self)
 		self.base = _base
+		self.ui_base = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
 
 	def update_ui(self):
 		pass
@@ -27,6 +28,7 @@ class GameState(object, DirectObject.DirectObject):
 
 	def destroy(self):
 		self.ignoreAll()
+		self.ui_base.destroy()
 
 
 class CombatState(GameState):
@@ -65,6 +67,7 @@ class CombatState(GameState):
 											 frameColor=(0, 0, 0, 0),
 											 scale=0.2,
 											 pos=(0, 0, 0.8))
+		self.ui_turn.reparentTo(self.ui_base)
 
 		_range = value = self.combatants['red'].current_hp
 		self.ui_player_health = DirectGui.DirectWaitBar(range=_range,
@@ -72,12 +75,15 @@ class CombatState(GameState):
 														barColor=(0, 1, 0, 1),
 														scale=0.3,
 														pos=(-0.8, 0, 0.4))
+		self.ui_player_health.reparentTo(self.ui_base)
 
 		self.ui_player_stamina = DirectGui.DirectWaitBar(range=100,
 														 value=0,
 														 barColor=(0, 0, 1, 1),
 														 scale=(0.3, 1, 0.15),
 														 pos=(-0.8, 0, 0.37))
+		self.ui_player_stamina.reparentTo(self.ui_base)
+
 		num_spells = len(self.player_spells) - 1
 		def use_command(command, combatant):
 			command.run(combatant)
@@ -91,6 +97,8 @@ class CombatState(GameState):
 								   )
 			for i, v in enumerate(self.player_spells)
 		]
+		for i in self.ui_player_spells:
+			i.reparentTo(self.ui_base)
 
 		_range = value = self.combatants['green'].current_hp
 		self.ui_enemy_health = DirectGui.DirectWaitBar(range=_range,
@@ -98,12 +106,14 @@ class CombatState(GameState):
 													   barColor=(0, 1, 0, 1),
 													   scale=0.3,
 													   pos=(0.8, 0, 0.4))
+		self.ui_enemy_health.reparentTo(self.ui_base)
 
 		self.ui_enemy_stamina = DirectGui.DirectWaitBar(range=100,
 														value=0,
 														barColor=(0, 0, 1, 1),
 														scale=(0.3, 1, 0.15),
 														pos=(0.8, 0, 0.37))
+		self.ui_enemy_stamina.reparentTo(self.ui_base)
 
 	def update_ui(self):
 		self.ui_turn['text'] = str(self.turn)
@@ -122,6 +132,36 @@ class CombatState(GameState):
 			self.turn_end = False
 
 
+class FarmState(GameState):
+	def __init__(self, _base):
+		GameState.__init__(self, _base)
+
+		self.options = [
+			('Combat', self.do_combat),
+			('Training', self.do_training),
+		]
+
+		self.setup_ui()
+
+	def do_combat(self):
+		self.base.change_state(CombatState)
+
+	def do_training(self):
+		pass
+
+	def setup_ui(self):
+		self.ui_options = [
+			DirectGui.DirectButton(text=v[0],
+								   command=v[1],
+								   scale=0.2,
+								   pos=(0, 0, 0.8 - 0.3 * i),
+								   )
+			for i, v in enumerate(self.options)
+		]
+		for i in self.ui_options:
+			i.reparentTo(self.ui_base)
+
+
 class Game(ShowBase):
 	def __init__(self):
 		ShowBase.__init__(self)
@@ -135,8 +175,12 @@ class Game(ShowBase):
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
-		self.game_state = CombatState(self)
+		self.game_state = FarmState(self)
 		self.taskMgr.add(self.main_loop, "MainLoop")
+
+	def change_state(self, new_state):
+		self.game_state.destroy()
+		self.game_state = new_state(self)
 
 	def main_loop(self, task):
 		self.game_state.main_loop()
