@@ -209,7 +209,7 @@ class FarmState(GameState):
 
 		self.ui_weeks = DirectGui.DirectLabel(text='',
 											  scale=0.1,
-											  pos=(-1.0, 0, -0.8),
+											  pos=(-1.0, 0, -0.9),
 											  )
 		self.ui_weeks.reparentTo(self.ui_base)
 
@@ -250,14 +250,18 @@ class FarmState(GameState):
 		self.ui_training_results_okay.reparentTo(self.ui_training_results)
 
 		# Monster stats
-		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(1, 1, 1, 1),
+													  frameSize=(-1, 1, -0.7, 0.9),
+													  relief=DirectGuiGlobals.GROOVE,
+													  borderWidth=(0.01, 0.01),
+													  )
 		self.ui_monster_stats.reparentTo(self.ui_base)
 		self.ui_monster_stats.hide()
 
 		self.ui_monster_name = DirectGui.DirectLabel(text='',
 													 frameColor=(0, 0, 0, 0),
 													 scale=0.2,
-													 pos=(-1, 0, 0.8),
+													 pos=(-0.8, 0, 0.7),
 													 )
 		self.ui_monster_name.reparentTo(self.ui_monster_stats)
 		self.ui_monster_base_stats = {}
@@ -268,13 +272,13 @@ class FarmState(GameState):
 			label = DirectGui.DirectLabel(text=v.title(),
 									  frameColor=(0, 0, 0, 0),
 									  scale=0.05,
-									  pos=(-1.0, 0, 0.6 - 0.1 * i),
+									  pos=(-0.8, 0, 0.55 - 0.1 * i),
 									  )
 			label.reparentTo(self.ui_monster_stats)
 			bar = DirectGui.DirectWaitBar(range=100,
 										  value=0,
 										  scale=0.3,
-										  pos=(-0.55, 0, 0.61 - 0.1 * i),
+										  pos=(-0.35, 0, 0.56 - 0.1 * i),
 										  )
 			bar.reparentTo(self.ui_monster_stats)
 			self.ui_monster_base_stats[v] = bar
@@ -284,8 +288,8 @@ class FarmState(GameState):
 			self.ui_main_menu.show()
 		self.ui_monster_stats_okay = DirectGui.DirectButton(text="Okay",
 															   command=monster_stats_okay,
-															   scale=0.2,
-															   pos=(0, 0, -0.8),
+															   scale=0.1,
+															   pos=(0, 0, -0.6),
 															   )
 		self.ui_monster_stats_okay.reparentTo(self.ui_monster_stats)
 
