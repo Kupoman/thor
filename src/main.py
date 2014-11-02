@@ -57,8 +57,7 @@ class CombatState(GameState):
 			commands.Wait,
 			]
 
-		self.background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
-		self.base.cam2dp.node().getDisplayRegion(0).setSort(-20)
+		self.base.background.setImage("art/background.png")
 
 		self.turn_end = False
 
@@ -66,7 +65,6 @@ class CombatState(GameState):
 
 	def destroy(self):
 		GameState.destroy(self)
-		self.background.destroy()
 
 	def cb_next_turn(self):
 		self.turn_end = True
@@ -169,6 +167,9 @@ class FarmState(GameState):
 
 		self.setup_ui()
 
+
+		self.base.background.setImage("art/menu_background.png")
+
 	def do_combat(self):
 		self.base.change_state(CombatState)
 
@@ -196,7 +197,8 @@ class FarmState(GameState):
 
 	def setup_ui(self):
 		# Main menu
-		self.ui_main_menu = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_main_menu = DirectGui.DirectFrame(frameSize=(-4.0/3, 4.0/3, -1, 1),
+			frameColor=(0, 0, 0, 0))
 		self.ui_main_menu.reparentTo(self.ui_base)
 
 		for i, v in enumerate(self.options):
@@ -313,6 +315,9 @@ class Game(ShowBase):
 
 		self.accept("escape", sys.exit)
 		self.win.setCloseRequestEvent("escape")
+
+		self.background = OnscreenImage(parent=self.render2dp, image="art/menu_background.png")
+		self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
 		# Setup the player and the player's monster
 		self.player = Trainer()
