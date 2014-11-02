@@ -8,3 +8,5 @@ class Monster:
 
 		self.current_hp = self.hp
 		self.current_stamina = 0
+
+		self.target = None

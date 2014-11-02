@@ -11,6 +11,7 @@ from direct.gui import DirectGui, DirectGuiGlobals
 from panda3d.core import *
 
 from monster import Monster
+import commands
 
 class Game(ShowBase):
 	def cb_next_turn(self):
@@ -33,6 +34,8 @@ class Game(ShowBase):
 		self.combatants = {}
 		self.combatants['red'] = Monster(name="Red", hp=250, recovery=1)
 		self.combatants['green'] = Monster(name="Green", hp=100, recovery=2)
+		self.combatants['red'].target = self.combatants['green']
+		self.combatants['green'].target = self.combatants['red']
 
 		# Combat vars
 		self.turn = 60
@@ -56,18 +59,19 @@ class Game(ShowBase):
 														 scale=(0.3, 1, 0.15),
 														 pos=(-0.8, 0, 0.37))
 		self.player_spells = [
-			('One', 'art/attacks/cold-fire.png'),
-			('Two', 'art/attacks/cure-1.png'),
+			commands.Attack,
+			commands.Wait,
 		]
 		num_spells = len(self.player_spells) - 1
-		def cast_spell():
-			self.combatants['green'].current_hp -= 50
+		def use_command(command, combatant):
+			command.run(combatant)
 			self.turn_end = True
 		self.ui_player_spells = [
-			DirectGui.DirectButton(image=v[1],
+			DirectGui.DirectButton(image=v.icon,
 								   scale=0.1,
 								   pos=(-0.25*(num_spells - i), 0, -0.6),
-								   command=cast_spell,
+								   command=use_command,
+								   extraArgs=[v, self.combatants['red']],
 								   )
 			for i, v in enumerate(self.player_spells)
 		]
