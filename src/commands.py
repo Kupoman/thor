@@ -1,4 +1,8 @@
+import random
+
+
 _ICON_DIR = "art/attacks/"
+
 
 class Command(object):
 	name = "Command"
@@ -19,10 +23,16 @@ class Attack(Command):
 			print("No target")
 			return
 
-		cost = 15
-		if monster.current_stamina >= cost:
-			monster.current_stamina -= cost
-			monster.target.current_hp -= 25
+		possible_techs = [tech for tech in monster.techniques
+			if tech.get_stamina_cost(monster) <= monster.current_stamina]
+
+		if not possible_techs:
+			print(monster.techniques)
+			print("No technique to use")
+			return
+
+		tech = random.choice(possible_techs)
+		tech.use(monster, monster.target)
 
 
 class Wait(Command):

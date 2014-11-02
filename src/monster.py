@@ -1,3 +1,5 @@
+import techniques
+
 class Monster:
 	def __init__(self, name="Monster", attack=1, defense=1, intelligence=1,
 			stamina=1, speed=1):
@@ -19,9 +21,10 @@ class Monster:
 		self.special_attack = 0.5 * (self.attack + self.intelligence)
 		self.special_defense = 0.5 * (self.defense + self.intelligence)
 		self.accuracy = 0.5 * (self.attack + self.speed)
-		self.evasion = 0.5 * (self.defense + self.speed)
+		self.evasion = 0.5 * (self.defense + self.speed) / 100.0
 
 		self.current_hp = self.hp
-		self.current_stamina = 0
+		self.current_stamina = 50
 
 		self.target = None
+		self.techniques = [techniques.Scratch]
