@@ -74,14 +74,33 @@ class CombatState(GameState):
 		GameState.__init__(self, _base)
 		self.accept("enter", self.cb_next_turn)
 
+		# Set Camera
+		self.base.disableMouse()
+		self.base.camera.setPos(0, -5, 2.25)
+		self.base.camera.setHpr(0, -10, 0)
+		self.base.camLens.setFov(65)
+
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = self.player.monster
 		self.combatants['red'].current_stamina = 50
 		self.combatants['red'].current_hp = self.combatants['red'].hp
-		self.combatants['green'] = Monster(name="Green", stamina=25, attack=15)
+		self.model_red = None
+		if self.combatants['red'].visual:
+			self.model_red = base.loader.loadModel(self.combatants['red'].visual)
+			self.model_red.setPos(-2, 1.5, 0)
+			self.model_red.setHpr(-90, 0, 0)
+			self.model_red.reparentTo(base.render)
+		g_race = "golem" if self.player.monster.race.lower() == "ogre" else "ogre"
+		self.combatants['green'] = Monster.new_from_race(g_race)
 		self.combatants['green'].current_hp = self.combatants['green'].hp
 		self.combatants['green'].current_stamina = 50
+		if self.combatants['green'].visual:
+			self.model_green = base.loader.loadModel(self.combatants['green'].visual)
+			self.model_green.setPos(2, 1.5, 0)
+			self.model_green.setHpr(90, 0, 0)
+			self.model_green.reparentTo(base.render)
+
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
 
@@ -100,6 +119,10 @@ class CombatState(GameState):
 
 	def destroy(self):
 		GameState.destroy(self)
+		if self.model_red:
+			self.model_red.removeNode()
+		if self.model_green:
+			self.model_green.removeNode()
 
 	def cb_next_turn(self):
 		self.player_command = commands.Wait
@@ -419,7 +442,8 @@ class TitleState(GameState):
 
 		def new_trainer_okay():
 			self.change_player(Trainer(self.ui_new_trainer_name.get()))
-			self.player.monster = Monster(name="Red", defense=25, speed=15)
+			self.player.monster = Monster.new_from_race("ogre")
+			self.player.monster.name = "Red"
 			self.base.change_state(FarmState)
 		self.ui_new_trainer_okay = DirectGui.DirectButton(text="Okay",
 														  text_fg=(1, 1, 1, 1),

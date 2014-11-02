@@ -3,8 +3,8 @@
 	"race" : "Ogre",
 	"attack" : 20,
 	"defense" : 25,
-	"intelligence" : 15,
+	"intelligence" : 20,
 	"stamina" : 20,
-	"speed" : 20,
-	"visual" : "golem"
+	"speed" : 15,
+	"visual" : "ogre"
 }
