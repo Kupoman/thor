@@ -203,10 +203,13 @@ class FarmState(GameState):
 
 		for i, v in enumerate(self.options):
 			btn = DirectGui.DirectButton(text=v[0],
-								   command=v[1],
-								   scale=0.2,
-								   pos=(0, 0, 0.8 - 0.3 * i),
-								   )
+										 text_fg=(1, 1, 1, 1),
+										 text_shadow=(0, 0, 0, 1),
+										 pad=(0.05, 0.05),
+										 command=v[1],
+										 scale=0.2,
+										 pos=(0, 0, 0.8 - 0.35 * i),
+										 )
 			btn.reparentTo(self.ui_main_menu)
 
 		self.ui_weeks = DirectGui.DirectLabel(text='',
@@ -224,10 +227,13 @@ class FarmState(GameState):
 
 		for i, v in enumerate(self.training_options):
 			btn = DirectGui.DirectButton(text=v.title(),
+										 text_fg=(1, 1, 1, 1),
+										 text_shadow=(0, 0, 0, 1),
+										 pad=(0.05, 0.05),
 										 command=self.do_training,
 										 extraArgs=[v],
-										 scale=0.2,
-										 pos=(0, 0, 0.8 - 0.3 * i),
+										 scale=0.15,
+										 pos=(0, 0, 0.8 - 0.25 * i),
 										 )
 			btn.reparentTo(self.ui_training_menu)
 
@@ -293,10 +299,13 @@ class FarmState(GameState):
 			self.ui_monster_stats.hide()
 			self.ui_main_menu.show()
 		self.ui_monster_stats_okay = DirectGui.DirectButton(text="Okay",
-															   command=monster_stats_okay,
-															   scale=0.1,
-															   pos=(0, 0, -0.6),
-															   )
+															text_fg=(1, 1, 1, 1),
+															text_shadow=(0, 0, 0, 1),
+															pad=(0.05, 0.05),
+															command=monster_stats_okay,
+															scale=0.1,
+															pos=(0, 0, -0.6),
+															)
 		self.ui_monster_stats_okay.reparentTo(self.ui_monster_stats)
 
 	def update_ui(self):
