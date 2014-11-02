@@ -221,7 +221,7 @@ class FarmState(GameState):
 										 relief=None,
 										 command=v[1],
 										 scale=0.2,
-										 pos=(0, 0, 0.8 - 0.35 * i),
+										 pos=(0, 0, 0.7 - 0.35 * i),
 										 )
 			btn.reparentTo(self.ui_main_menu)
 
