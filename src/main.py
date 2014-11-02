@@ -46,7 +46,7 @@ class CombatState(GameState):
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = self.player.monster
-		self.combatants['green'] = Monster(name="Green", stamina=2)
+		self.combatants['green'] = Monster(name="Green", stamina=25, attack=15)
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
 
@@ -263,7 +263,7 @@ class Game(ShowBase):
 
 		# Setup the player and the player's monster
 		self.player = Trainer()
-		self.player.monster = Monster(name="Red", defense=2)
+		self.player.monster = Monster(name="Red", defense=25, speed=15)
 
 		# Setup game states
 		self.game_state = FarmState(self)

@@ -1,8 +1,8 @@
 import techniques
 
 class Monster:
-	def __init__(self, name="Monster", attack=1, defense=1, intelligence=1,
-			stamina=1, speed=1):
+	def __init__(self, name="Monster", attack=20, defense=20, intelligence=20,
+			stamina=20, speed=20):
 		self.name = name
 
 		# Base Stats
@@ -17,7 +17,7 @@ class Monster:
 		self.hp = self.defense * 10
 		self.command_count = self.intelligence
 		self.initiative = self.speed
-		self.recovery = self.stamina
+		self.recovery = 0.125*self.stamina
 		self.special_attack = 0.5 * (self.attack + self.intelligence)
 		self.special_defense = 0.5 * (self.defense + self.intelligence)
 		self.accuracy = 0.5 * (self.attack + self.speed)
