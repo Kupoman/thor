@@ -9,6 +9,7 @@ class Monster(object):
 	def __init__(self, name="Monster", attack=20, defense=20, intelligence=20,
 			stamina=20, speed=20):
 		self.name = name
+		self.race = "Unknown"
 
 		# Base Stats
 		self.attack = attack

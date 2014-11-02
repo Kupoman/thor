@@ -302,9 +302,11 @@ class FarmState(GameState):
 
 		self.ui_monster_name = DirectGui.DirectLabel(text='',
 													 frameColor=(0, 0, 0, 0),
-													 scale=0.2,
-													 pos=(-0.8, 0, 0.7),
+													 scale=0.1,
 													 )
+		self.ui_monster_name['text'] = "{} [{}]".format(self.player.monster.name, self.player.monster.race)
+		self.ui_monster_name.resetFrameSize()
+		self.ui_monster_name.setPos(0, 0, 0.7)
 		self.ui_monster_name.reparentTo(self.ui_monster_stats)
 		self.ui_monster_base_stats = {}
 		for i, v in enumerate(self.training_options):
@@ -341,7 +343,6 @@ class FarmState(GameState):
 	def update_ui(self):
 		self.ui_weeks['text'] = "Weeks: {}".format(self.player.weeks)
 
-		self.ui_monster_name['text'] = self.player.monster.name
 		for k, v in self.ui_monster_base_stats.iteritems():
 			v['value'] = getattr(self.player.monster, k)
 
