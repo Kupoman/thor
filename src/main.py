@@ -12,6 +12,9 @@ from panda3d.core import *
 
 from monster import Monster
 import commands
+import appdirs
+import uuid
+import json
 
 
 class Trainer(object):
@@ -24,13 +27,18 @@ class Trainer(object):
 
 		return ret
 
-	def __init__(self):
+	def __init__(self, name="Trainer"):
+		self.name = name
 		self.monster = None
 		self.weeks = 0
+		self.uuid = str(uuid.uuid4())
+		while uuid in base.saved_trainer_ids:
+			self.uuid = str(uuid.uuid4())
 
 	def serialize(self):
 		data = {}
 		data['weeks'] = self.weeks
+		data['name'] = self.name
 		if self.monster:
 			data['monster'] = self.monster.serialize()
 
@@ -50,9 +58,15 @@ class GameState(object, DirectObject.DirectObject):
 	def main_loop(self):
 		self.update_ui()
 
+	def change_player(self, new_player):
+		self.player = self.base.player = new_player
+
 	def destroy(self):
 		self.ignoreAll()
 		self.ui_base.destroy()
+
+		with open(os.path.join(self.base.save_dir, self.player.uuid) + '.sav', 'w') as f:
+			json.dump(self.player.serialize(), f)
 
 
 class CombatState(GameState):
@@ -357,13 +371,20 @@ class TitleState(GameState):
 			('Exit Game', self.do_exit),
 		]
 
+		self.trainer_saves = {}
+		for sav in os.listdir(self.base.save_dir):
+			with open(os.path.join(self.base.save_dir, sav)) as f:
+				self.trainer_saves[sav.split('.')[0]] = json.load(f)
+
 		self.setup_ui()
 
 	def do_new(self):
-		self.base.change_state(FarmState)
+		self.ui_main_menu.hide()
+		self.ui_new_trainer.show()
 
 	def do_load(self):
-		self.base.change_state(FarmState)
+		self.ui_main_menu.hide()
+		self.ui_load_trainer.show()
 
 	def do_exit(self):
 		sys.exit()
@@ -384,6 +405,54 @@ class TitleState(GameState):
 										 )
 			btn.reparentTo(self.ui_main_menu)
 
+		# New Trainer
+		self.ui_new_trainer = DirectGui.DirectFrame()
+		self.ui_new_trainer.reparentTo(self.ui_base)
+		self.ui_new_trainer.hide()
+
+		self.ui_new_trainer_name = DirectGui.DirectEntry(initialText='Trainer',
+														 frameColor=(1, 1, 1, 0.33),
+														 scale=0.1,
+														 pos=(-0.5, 0, 0),
+														 )
+		self.ui_new_trainer_name.reparentTo(self.ui_new_trainer)
+
+		def new_trainer_okay():
+			self.change_player(Trainer(self.ui_new_trainer_name.get()))
+			self.player.monster = Monster(name="Red", defense=25, speed=15)
+			self.base.change_state(FarmState)
+		self.ui_new_trainer_okay = DirectGui.DirectButton(text="Okay",
+														  text_fg=(1, 1, 1, 1),
+														  text_shadow=(0, 0, 0, 1),
+														  relief=None,
+														  command=new_trainer_okay,
+														  scale=0.1,
+														  pos=(0, 0, -0.6),
+														  )
+		self.ui_new_trainer_okay.reparentTo(self.ui_new_trainer,)
+
+		# Load Trainer
+		self.ui_load_trainer = DirectGui.DirectFrame()
+		self.ui_load_trainer.reparentTo(self.ui_base)
+		self.ui_load_trainer.hide()
+
+		def load_trainer(data):
+			self.change_player(Trainer.deserialize(data))
+			self.base.change_state(FarmState)
+		i = 0
+		for tid, data in self.trainer_saves.iteritems():
+			btn = DirectGui.DirectButton(text=data['name'],
+										 text_fg=(1,1,1,1),
+										 text_shadow=(0, 0, 0,1),
+										 scale=0.1,
+										 frameColor=(0.7, 0.7, 0.7, 0.33),
+										 pos=(0, 0, 0.8 - 0.2 * i),
+										 command=load_trainer,
+										 extraArgs=[data],
+										 )
+			btn.reparentTo(self.ui_load_trainer)
+			i += 1
+
 
 class Game(ShowBase):
 	def __init__(self):
@@ -401,9 +470,16 @@ class Game(ShowBase):
 		self.background = OnscreenImage(parent=self.render2dp, image="art/menu_background.png")
 		self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
+		# Setup saves
+		self.save_dir = os.path.join(appdirs.user_data_dir('ThorGame'), 'saves')
+		if not os.path.exists(self.save_dir):
+			os.makedirs(self.save_dir)
+		self.saved_trainer_ids = [i.split('.')[0] for i in os.listdir(self.save_dir)]
+
 		# Setup the player and the player's monster
-		self.player = Trainer()
-		self.player.monster = Monster(name="Red", defense=25, speed=15)
+		self.player = None
+		#self.player = Trainer()
+		#self.player.monster = Monster(name="Red", defense=25, speed=15)
 
 		# Setup game states
 		self.game_state = TitleState(self)
