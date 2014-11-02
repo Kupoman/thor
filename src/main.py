@@ -152,6 +152,7 @@ class FarmState(GameState):
 			'intelligence',
 			'stamina',
 			'speed',
+			'back',
 		]
 
 		self.setup_ui()
@@ -164,10 +165,11 @@ class FarmState(GameState):
 		self.ui_training_menu.show()
 
 	def do_training(self, stat):
-		prev_stat = getattr(self.player_monster, stat)
-		print("Raising stat", stat, "from", prev_stat, "to ", end='')
-		setattr(self.player_monster, stat, prev_stat + 1)
-		print(getattr(self.player_monster, stat))
+		if stat != 'back':
+			prev_stat = getattr(self.player_monster, stat)
+			print("Raising stat", stat, "from", prev_stat, "to ", end='')
+			setattr(self.player_monster, stat, prev_stat + 1)
+			print(getattr(self.player_monster, stat))
 
 		self.ui_training_menu.hide()
 		self.ui_main_menu.show()
