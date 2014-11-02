@@ -4,7 +4,7 @@ import sys
 import os
 os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
 
-from direct.showbase.ShowBase import ShowBase
+from direct.showbase.ShowBase import ShowBase, DirectObject
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui import DirectGui, DirectGuiGlobals
 
@@ -13,16 +13,29 @@ from panda3d.core import *
 from monster import Monster
 import commands
 
-class Game(ShowBase):
-	def cb_next_turn(self):
-		self.turn_end = True
 
-	def __init__(self):
-		ShowBase.__init__(self)
+class GameState(object, DirectObject.DirectObject):
+	def __init__(self, _base):
+		DirectObject.DirectObject.__init__(self)
+		self.base = _base
 
+	def setup_ui(self):
+		pass
+
+	def update_ui(self):
+		pass
+
+	def main_loop(self):
+		self.update_ui()
+
+	def destroy(self):
+		self.ignoreAll()
+
+
+class CombatState(GameState):
+	def __init__(self, _base):
+		GameState.__init__(self, _base)
 		self.accept("enter", self.cb_next_turn)
-		self.accept("escape", sys.exit)
-		self.win.setCloseRequestEvent("escape")
 
 		# Increase the texture resolution on DirectGui
 		default_font = DirectGuiGlobals.getDefaultFont()
@@ -61,7 +74,7 @@ class Game(ShowBase):
 		self.player_spells = [
 			commands.Attack,
 			commands.Wait,
-		]
+			]
 		num_spells = len(self.player_spells) - 1
 		def use_command(command, combatant):
 			command.run(combatant)
@@ -78,27 +91,28 @@ class Game(ShowBase):
 
 		_range = value = self.combatants['green'].current_hp
 		self.ui_enemy_health = DirectGui.DirectWaitBar(range=_range,
-														value=value,
-														barColor=(0, 1, 0, 1),
-														scale=0.3,
-														pos=(0.8, 0, 0.4))
+													   value=value,
+													   barColor=(0, 1, 0, 1),
+													   scale=0.3,
+													   pos=(0.8, 0, 0.4))
 
 		self.ui_enemy_stamina = DirectGui.DirectWaitBar(range=100,
-														 value=0,
-														 barColor=(0, 0, 1, 1),
-														 scale=(0.3, 1, 0.15),
-														 pos=(0.8, 0, 0.37))
+														value=0,
+														barColor=(0, 0, 1, 1),
+														scale=(0.3, 1, 0.15),
+														pos=(0.8, 0, 0.37))
 
-		self.taskMgr.add(self.main_loop, "MainLoop")
-
-		background = OnscreenImage(parent=render2dp, image="art/background.png")
-		base.cam2dp.node().getDisplayRegion(0).setSort(-20)
+		background = OnscreenImage(parent=self.base.render2dp, image="art/background.png")
+		self.base.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
 		self.turn_end = False
 
-	def main_loop(self, task):
+	def cb_next_turn(self):
+		self.turn_end = True
+
+	def main_loop(self):
 		if not self.turn_end:
-			return task.cont
+			return
 
 		self.turn -= 1
 		self.combatants['red'].current_stamina += self.combatants['red'].recovery
@@ -109,6 +123,20 @@ class Game(ShowBase):
 		self.ui_enemy_health['value'] = self.combatants['green'].current_hp
 		self.ui_enemy_stamina['value'] = self.combatants['green'].current_stamina
 		self.turn_end = False
+
+
+class Game(ShowBase):
+	def __init__(self):
+		ShowBase.__init__(self)
+
+		self.accept("escape", sys.exit)
+		self.win.setCloseRequestEvent("escape")
+
+		self.game_state = CombatState(self)
+		self.taskMgr.add(self.main_loop, "MainLoop")
+
+	def main_loop(self, task):
+		self.game_state.main_loop()
 		return task.cont
 
 
