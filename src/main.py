@@ -163,7 +163,7 @@ class FarmState(GameState):
 			('Combat', self.do_combat),
 			('Training', self.do_training_menu),
 			('Monster Info', self.do_monster_stats),
-			('Exit Game', self.do_exit),
+			('Quit', self.do_exit),
 		]
 
 		self.training_options = [
@@ -206,7 +206,7 @@ class FarmState(GameState):
 		self.ui_monster_stats.show()
 
 	def do_exit(self):
-		sys.exit()
+		self.base.change_state(TitleState)
 
 	def setup_ui(self):
 		# Main menu
@@ -329,6 +329,44 @@ class FarmState(GameState):
 			v['value'] = getattr(self.player.monster, k)
 
 
+class TitleState(GameState):
+	def __init__(self, _base):
+		GameState.__init__(self, _base)
+
+		self.options = [
+			('New Trainer', self.do_new),
+			('Load Trainer', self.do_load),
+			('Exit Game', self.do_exit),
+		]
+
+		self.setup_ui()
+
+	def do_new(self):
+		self.base.change_state(FarmState)
+
+	def do_load(self):
+		self.base.change_state(FarmState)
+
+	def do_exit(self):
+		sys.exit()
+
+	def setup_ui(self):
+		self.ui_main_menu = DirectGui.DirectFrame(frameSize=(-4.0/3, 4.0/3, -1, 1),
+												  frameColor=(0, 0, 0, 0))
+		self.ui_main_menu.reparentTo(self.ui_base)
+
+		for i, v in enumerate(self.options):
+			btn = DirectGui.DirectButton(text=v[0],
+										 text_fg=(1, 1, 1, 1),
+										 text_shadow=(0, 0, 0, 1),
+										 relief=None,
+										 command=v[1],
+										 scale=0.2,
+										 pos=(0, 0, 0.4 - 0.35 * i),
+										 )
+			btn.reparentTo(self.ui_main_menu)
+
+
 class Game(ShowBase):
 	def __init__(self):
 		ShowBase.__init__(self)
@@ -350,7 +388,7 @@ class Game(ShowBase):
 		self.player.monster = Monster(name="Red", defense=25, speed=15)
 
 		# Setup game states
-		self.game_state = FarmState(self)
+		self.game_state = TitleState(self)
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
 	def change_state(self, new_state):
