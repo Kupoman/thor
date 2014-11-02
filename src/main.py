@@ -59,7 +59,7 @@ class CombatState(GameState):
 
 		self.base.background.setImage("art/background.png")
 
-		self.turn_end = False
+		self.player_command = None
 
 		self.setup_ui()
 
@@ -67,7 +67,7 @@ class CombatState(GameState):
 		GameState.destroy(self)
 
 	def cb_next_turn(self):
-		self.turn_end = True
+		self.player_command = commands.Wait
 
 	def setup_ui(self):
 		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn),
@@ -94,15 +94,14 @@ class CombatState(GameState):
 		self.ui_player_stamina.reparentTo(self.ui_base)
 
 		num_spells = len(self.player_spells) - 1
-		def use_command(command, combatant):
-			command.run(combatant)
-			self.turn_end = True
+		def use_command(command):
+			self.player_command = command
 		self.ui_player_spells = [
 			DirectGui.DirectButton(image=v.icon,
 								   scale=0.05,
 								   pos=(-1.0 + (0.125 * i), 0, -0.8 + 0.075 * (i % 2)),
 								   command=use_command,
-								   extraArgs=[v, self.combatants['red']],
+								   extraArgs=[v],
 								   )
 			for i, v in enumerate(self.player_spells)
 		]
@@ -134,11 +133,17 @@ class CombatState(GameState):
 	def main_loop(self):
 		GameState.main_loop(self)
 
-		if self.turn_end:
+		if self.player_command:
+			if self.player.monster.initiative > self.combatants['green']:
+				self.player_command.run(self.player.monster)
+				commands.Attack.run(self.combatants['green'])
+			else:
+				commands.Attack.run(self.combatants['green'])
+				self.player_command.run(self.player.monster)
 			self.turn -= 1
 			self.combatants['red'].current_stamina += self.combatants['red'].recovery
 			self.combatants['green'].current_stamina += self.combatants['green'].recovery
-			self.turn_end = False
+			self.player_command = None
 
 		if self.combatants['red'].current_hp <= 0 or \
 			self.combatants['green'].current_hp <= 0:
