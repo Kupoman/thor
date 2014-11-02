@@ -1,6 +1,11 @@
 import techniques
 
+
 class Monster(object):
+	@classmethod
+	def deserialize(cls, json_dictionary):
+		return Monster(**json_dictionary)
+
 	def __init__(self, name="Monster", attack=20, defense=20, intelligence=20,
 			stamina=20, speed=20):
 		self.name = name
@@ -64,3 +69,14 @@ class Monster(object):
 	@property
 	def evasion(self):
 		return 0.5 * (self.defense + self.speed) / 100.0
+
+	def serialize(self):
+		data = {}
+		data['name'] = self.name
+		data['attack'] = self.attack
+		data['defense'] = self.defense
+		data['intelligence'] = self.intelligence
+		data['stamina'] = self.stamina
+		data['speed'] = self.speed
+
+		return data
