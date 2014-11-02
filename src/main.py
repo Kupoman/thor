@@ -136,6 +136,10 @@ class CombatState(GameState):
 			self.combatants['green'].current_stamina += self.combatants['green'].recovery
 			self.turn_end = False
 
+		if self.combatants['red'].current_hp <= 0 or \
+			self.combatants['green'].current_hp <= 0:
+			self.base.change_state(FarmState)
+
 
 class FarmState(GameState):
 	def __init__(self, _base):
