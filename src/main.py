@@ -68,8 +68,8 @@ class Game(ShowBase):
 			self.turn_end = True
 		self.ui_player_spells = [
 			DirectGui.DirectButton(image=v.icon,
-								   scale=0.1,
-								   pos=(-0.25*(num_spells - i), 0, -0.6),
+								   scale=0.05,
+								   pos=(-1.0 + (0.125 * i), 0, -0.8 + 0.075 * (i % 2)),
 								   command=use_command,
 								   extraArgs=[v, self.combatants['red']],
 								   )
