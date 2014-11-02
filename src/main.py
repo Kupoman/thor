@@ -17,6 +17,7 @@ import commands
 class Trainer(object):
 	def __init__(self):
 		self.monster = None
+		self.weeks = 0
 
 
 class GameState(object, DirectObject.DirectObject):
@@ -143,6 +144,7 @@ class CombatState(GameState):
 
 		if self.combatants['red'].current_hp <= 0 or \
 			self.combatants['green'].current_hp <= 0:
+			self.player.weeks += 1
 			self.base.change_state(FarmState)
 
 
@@ -200,6 +202,12 @@ class FarmState(GameState):
 								   )
 			btn.reparentTo(self.ui_main_menu)
 
+		self.ui_weeks = DirectGui.DirectLabel(text='',
+											  scale=0.1,
+											  pos=(-1.0, 0, -0.8),
+											  )
+		self.ui_weeks.reparentTo(self.ui_base)
+
 		# Training menu
 		self.ui_training_menu = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
 		self.ui_training_menu.reparentTo(self.ui_base)
@@ -228,12 +236,16 @@ class FarmState(GameState):
 		def training_results_okay():
 			self.ui_training_results.hide()
 			self.ui_main_menu.show()
+			self.player.weeks += 1
 		self.ui_training_results_okay = DirectGui.DirectButton(text="Okay",
 															   command=training_results_okay,
 															   scale=0.2,
 															   pos=(0, 0, -0.2),
 															   )
 		self.ui_training_results_okay.reparentTo(self.ui_training_results)
+
+	def update_ui(self):
+		self.ui_weeks['text'] = "Weeks: {}".format(self.player.weeks)
 
 
 class Game(ShowBase):
