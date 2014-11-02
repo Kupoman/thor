@@ -237,6 +237,8 @@ class FarmState(GameState):
 		self.ui_training_results.hide()
 
 		self.ui_training_results_text = DirectGui.DirectLabel(text='',
+															  text_fg=(1, 1, 1, 1),
+															  text_shadow = (0, 0, 0, 1),
 															  scale=0.2,
 															  pos=(0, 0, 0.6),
 															  )
