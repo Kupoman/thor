@@ -155,6 +155,7 @@ class FarmState(GameState):
 		self.options = [
 			('Combat', self.do_combat),
 			('Training', self.do_training_menu),
+			('Monster Info', self.do_monster_stats)
 		]
 
 		self.training_options = [
@@ -188,6 +189,10 @@ class FarmState(GameState):
 
 			self.ui_training_menu.hide()
 			self.ui_training_results.show()
+
+	def do_monster_stats(self):
+		self.ui_main_menu.hide()
+		self.ui_monster_stats.show()
 
 	def setup_ui(self):
 		# Main menu
@@ -244,8 +249,52 @@ class FarmState(GameState):
 															   )
 		self.ui_training_results_okay.reparentTo(self.ui_training_results)
 
+		# Monster stats
+		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_monster_stats.reparentTo(self.ui_base)
+		self.ui_monster_stats.hide()
+
+		self.ui_monster_name = DirectGui.DirectLabel(text='',
+													 frameColor=(0, 0, 0, 0),
+													 scale=0.2,
+													 pos=(-1, 0, 0.8),
+													 )
+		self.ui_monster_name.reparentTo(self.ui_monster_stats)
+		self.ui_monster_base_stats = {}
+		for i, v in enumerate(self.training_options):
+			if v == 'back':
+				continue
+
+			label = DirectGui.DirectLabel(text=v.title(),
+									  frameColor=(0, 0, 0, 0),
+									  scale=0.05,
+									  pos=(-1.0, 0, 0.6 - 0.1 * i),
+									  )
+			label.reparentTo(self.ui_monster_stats)
+			bar = DirectGui.DirectWaitBar(range=100,
+										  value=0,
+										  scale=0.3,
+										  pos=(-0.55, 0, 0.61 - 0.1 * i),
+										  )
+			bar.reparentTo(self.ui_monster_stats)
+			self.ui_monster_base_stats[v] = bar
+
+		def monster_stats_okay():
+			self.ui_monster_stats.hide()
+			self.ui_main_menu.show()
+		self.ui_monster_stats_okay = DirectGui.DirectButton(text="Okay",
+															   command=monster_stats_okay,
+															   scale=0.2,
+															   pos=(0, 0, -0.8),
+															   )
+		self.ui_monster_stats_okay.reparentTo(self.ui_monster_stats)
+
 	def update_ui(self):
 		self.ui_weeks['text'] = "Weeks: {}".format(self.player.weeks)
+
+		self.ui_monster_name['text'] = self.player.monster.name
+		for k, v in self.ui_monster_base_stats.iteritems():
+			v['value'] = getattr(self.player.monster, k)
 
 
 class Game(ShowBase):
