@@ -1,4 +1,4 @@
-
+from __future__ import print_function
 import sys
 
 import os
@@ -143,7 +143,15 @@ class FarmState(GameState):
 
 		self.options = [
 			('Combat', self.do_combat),
-			('Training', self.do_training),
+			('Training', self.do_training_menu),
+		]
+
+		self.training_options = [
+			'attack',
+			'defense',
+			'intelligence',
+			'stamina',
+			'speed',
 		]
 
 		self.setup_ui()
@@ -151,20 +159,45 @@ class FarmState(GameState):
 	def do_combat(self):
 		self.base.change_state(CombatState)
 
-	def do_training(self):
-		pass
+	def do_training_menu(self):
+		self.ui_main_menu.hide()
+		self.ui_training_menu.show()
+
+	def do_training(self, stat):
+		prev_stat = getattr(self.player_monster, stat)
+		print("Raising stat", stat, "from", prev_stat, "to ", end='')
+		setattr(self.player_monster, stat, prev_stat + 1)
+		print(getattr(self.player_monster, stat))
+
+		self.ui_training_menu.hide()
+		self.ui_main_menu.show()
 
 	def setup_ui(self):
-		self.ui_options = [
-			DirectGui.DirectButton(text=v[0],
+		# Main menu
+		self.ui_main_menu = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_main_menu.reparentTo(self.ui_base)
+
+		for i, v in enumerate(self.options):
+			btn = DirectGui.DirectButton(text=v[0],
 								   command=v[1],
 								   scale=0.2,
 								   pos=(0, 0, 0.8 - 0.3 * i),
 								   )
-			for i, v in enumerate(self.options)
-		]
-		for i in self.ui_options:
-			i.reparentTo(self.ui_base)
+			btn.reparentTo(self.ui_main_menu)
+
+		# Training menu
+		self.ui_training_menu = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
+		self.ui_training_menu.reparentTo(self.ui_base)
+		self.ui_training_menu.hide()
+
+		for i, v in enumerate(self.training_options):
+			btn = DirectGui.DirectButton(text=v.title(),
+										 command=self.do_training,
+										 extraArgs=[v],
+										 scale=0.2,
+										 pos=(0, 0, 0.8 - 0.3 * i),
+										 )
+			btn.reparentTo(self.ui_training_menu)
 
 
 class Game(ShowBase):
