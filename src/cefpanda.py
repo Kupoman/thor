@@ -116,9 +116,12 @@ class CEFPanda(object):
 		return True
 
 	def load(self, url):
-		url = os.path.abspath(url if sys.platform == "win32" else "file://" + url)
-		self._is_loaded = False
-		self.browser.GetMainFrame().LoadUrl(url)
+		if url:
+			url = os.path.abspath(url if sys.platform == "win32" else "file://" + url)
+			self._is_loaded = False
+			self.browser.GetMainFrame().LoadUrl(url)
+		else:
+			self.browser.GetMainFrame().LoadUrl('about:blank')
 
 	def execute_js(self, js, onload=False):
 		if onload and not self._is_loaded:
