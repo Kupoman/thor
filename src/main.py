@@ -4,6 +4,8 @@ import sys
 import os
 os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
 
+from cefpanda import CEFPanda
+
 from direct.showbase.ShowBase import ShowBase, DirectObject
 from direct.gui.OnscreenImage import OnscreenImage
 from direct.gui import DirectGui, DirectGuiGlobals
@@ -11,6 +13,7 @@ from direct.gui import DirectGui, DirectGuiGlobals
 from panda3d.core import *
 
 from monster import Monster
+from collections import OrderedDict
 import commands
 import appdirs
 import uuid
@@ -48,16 +51,44 @@ class Trainer(object):
 
 
 class GameState(object, DirectObject.DirectObject):
-	def __init__(self, _base):
+	def __init__(self, _base, ui=None):
 		DirectObject.DirectObject.__init__(self)
 		self.base = _base
 		self.ui_base = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
 		self.player = _base.player
+		self.quit = False
+
+		if ui is not None:
+			self.base.ui.load('ui/' + ui + '.html')
+
+			self.accept('arrow_up', self.base.ui.execute_js, ['navUp()'])
+			self.accept('arrow_up-repeat', self.base.ui.execute_js, ['navUp()'])
+			self.accept('arrow_down', self.base.ui.execute_js, ['navDown()'])
+			self.accept('arrow_down-repeat', self.base.ui.execute_js, ['navDown()'])
+			self.accept('enter', self.base.ui.execute_js, ['navEnter()'])
+			self.accept('f1', self.do_escape)
+
+			self.base.ui.execute_js("setupNav({})".format(json.dumps(self.nav.keys())), True)
+			self.base.ui.set_js_function("do_nav", self.do_nav)
+		else:
+			self.base.ui.load(None)
+
+	def do_escape(self):
+		pass
+
+	def do_nav(self, nav, item):
+		if nav == 'main-menu':
+			self.nav[item]()
+			return True
+
+		return False
 
 	def update_ui(self):
 		pass
 
 	def main_loop(self):
+		if self.quit:
+			sys.exit()
 		self.update_ui()
 
 	def change_player(self, new_player):
@@ -388,96 +419,54 @@ class FarmState(GameState):
 
 class TitleState(GameState):
 	def __init__(self, _base):
-		GameState.__init__(self, _base)
-
-		self.options = [
+		self.nav = OrderedDict([
 			('New Trainer', self.do_new),
 			('Load Trainer', self.do_load),
 			('Exit Game', self.do_exit),
-		]
+		])
+
+		GameState.__init__(self, _base, 'title')
 
 		self.trainer_saves = {}
 		for sav in os.listdir(self.base.save_dir):
 			with open(os.path.join(self.base.save_dir, sav)) as f:
-				self.trainer_saves[sav.split('.')[0]] = json.load(f)
+				data = json.load(f)
+				self.trainer_saves[data['uuid']] = data
 
 		self.setup_ui()
 
-	def do_new(self):
-		self.ui_main_menu.hide()
-		self.ui_new_trainer.show()
-
-	def do_load(self):
-		self.ui_main_menu.hide()
-		self.ui_load_trainer.show()
-
-	def do_exit(self):
-		sys.exit()
-
 	def setup_ui(self):
-		self.ui_main_menu = DirectGui.DirectFrame(frameSize=(-4.0/3, 4.0/3, -1, 1),
-												  frameColor=(0, 0, 0, 0))
-		self.ui_main_menu.reparentTo(self.ui_base)
-
-		for i, v in enumerate(self.options):
-			btn = DirectGui.DirectButton(text=v[0],
-										 text_fg=(1, 1, 1, 1),
-										 text_shadow=(0, 0, 0, 1),
-										 relief=None,
-										 command=v[1],
-										 scale=0.2,
-										 pos=(0, 0, 0.4 - 0.35 * i),
-										 )
-			btn.reparentTo(self.ui_main_menu)
-
-		# New Trainer
-		self.ui_new_trainer = DirectGui.DirectFrame()
-		self.ui_new_trainer.reparentTo(self.ui_base)
-		self.ui_new_trainer.hide()
-
-		self.ui_new_trainer_name = DirectGui.DirectEntry(initialText='Trainer',
-														 frameColor=(1, 1, 1, 0.33),
-														 scale=0.1,
-														 pos=(-0.5, 0, 0),
-														 )
-		self.ui_new_trainer_name.reparentTo(self.ui_new_trainer)
-
-		def new_trainer_okay():
-			self.change_player(Trainer(self.ui_new_trainer_name.get()))
+		def new_trainer(name):
+			self.change_player(Trainer(name))
 			self.player.monster = Monster.new_from_race("ogre")
 			self.player.monster.name = "Red"
 			self.base.change_state(FarmState)
-		self.ui_new_trainer_okay = DirectGui.DirectButton(text="Okay",
-														  text_fg=(1, 1, 1, 1),
-														  text_shadow=(0, 0, 0, 1),
-														  relief=None,
-														  command=new_trainer_okay,
-														  scale=0.1,
-														  pos=(0, 0, -0.6),
-														  )
-		self.ui_new_trainer_okay.reparentTo(self.ui_new_trainer,)
+		self.base.ui.set_js_function("new_trainer", new_trainer)
 
-		# Load Trainer
-		self.ui_load_trainer = DirectGui.DirectFrame()
-		self.ui_load_trainer.reparentTo(self.ui_base)
-		self.ui_load_trainer.hide()
-
-		def load_trainer(data):
-			self.change_player(Trainer.deserialize(data))
+		def load_trainer(trainer_uuid):
+			self.change_player(Trainer.deserialize(self.trainer_saves[trainer_uuid]))
 			self.base.change_state(FarmState)
-		i = 0
-		for tid, data in self.trainer_saves.iteritems():
-			btn = DirectGui.DirectButton(text=data['name'],
-										 text_fg=(1,1,1,1),
-										 text_shadow=(0, 0, 0,1),
-										 scale=0.1,
-										 frameColor=(0.7, 0.7, 0.7, 0.33),
-										 pos=(0, 0, 0.8 - 0.2 * i),
-										 command=load_trainer,
-										 extraArgs=[data],
-										 )
-			btn.reparentTo(self.ui_load_trainer)
-			i += 1
+		self.base.ui.set_js_function("load_trainer", load_trainer)
+
+	def do_escape(self):
+		self.base.ui.execute_js('switchToTab("{}")'.format('main-menu'))
+
+	def do_nav(self, nav, item):
+		if not GameState.do_nav(self, nav, item):
+			if nav == 'load-trainer':
+				self.base.ui.execute_js('loadTrainer()')
+			else:
+				print(nav, item)
+
+	def do_new(self):
+		self.base.ui.execute_js('switchToTab("{}")'.format('new-trainer'))
+
+	def do_load(self):
+		self.base.ui.execute_js('setupSaves({})'.format(json.dumps(self.trainer_saves.values())))
+		self.base.ui.execute_js('switchToTab("{}")'.format('load-trainer'))
+
+	def do_exit(self):
+		self.quit = True
 
 
 class Game(ShowBase):
@@ -501,6 +490,9 @@ class Game(ShowBase):
 		if not os.path.exists(self.save_dir):
 			os.makedirs(self.save_dir)
 		self.saved_trainer_ids = [i.split('.')[0] for i in os.listdir(self.save_dir)]
+
+		# Setup UI
+		self.ui = CEFPanda()
 
 		# Setup the player and the player's monster
 		self.player = None
