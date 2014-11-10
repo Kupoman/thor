@@ -111,9 +111,13 @@ class CEFPanda(object):
 
 		self._js_onload_queue = []
 
-	def Visit(self, string):
-		print(string)
-		return True
+	# Due to an issue in CEFPython, a load_url() call needs to be made
+	# before load_string() will work.
+	# CEFPython issue: https://code.google.com/p/chromiumembedded/issues/detail?id=763
+	def load_string(self, string, url):
+		url = os.path.abspath(url if sys.platform == "win32" else "file://" + url)
+		self._is_loaded = False
+		self.browser.GetMainFrame().LoadString(string, url)
 
 	def load(self, url):
 		if url:
