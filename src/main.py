@@ -246,14 +246,14 @@ class CombatState(GameState):
 
 class FarmState(GameState):
 	def __init__(self, _base):
-		GameState.__init__(self, _base)
-
-		self.options = [
+		self.nav = OrderedDict([
 			('Combat', self.do_combat),
 			('Training', self.do_training_menu),
 			('Monster Info', self.do_monster_stats),
 			('Quit', self.do_exit),
-		]
+		])
+
+		GameState.__init__(self, _base, 'farm')
 
 		self.training_options = [
 			'attack',
@@ -264,159 +264,50 @@ class FarmState(GameState):
 			'back',
 		]
 
-		self.setup_ui()
-
-
 		self.base.background.setImage("art/menu_background.png")
+		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
+
+	def do_escape(self):
+		self.base.ui.execute_js('switchToTab("{}")'.format('main-menu'))
+
+	def do_nav(self, nav, item):
+		if not GameState.do_nav(self, nav, item):
+			if nav == 'training-menu':
+				self.do_training(item.lower())
+			elif nav == 'training-results':
+				self.do_escape()
+			elif nav == 'monster-info':
+				self.do_escape()
+			else:
+				print("Unknown", nav, item)
 
 	def do_combat(self):
 		self.base.change_state(CombatState)
 
 	def do_training_menu(self):
-		self.ui_main_menu.hide()
-		self.ui_training_menu.show()
+		self.base.ui.execute_js('switchToTab("{}")'.format('training-menu'))
+		self.base.ui.execute_js('setupNav({})'.format(self.training_options))
 
 	def do_training(self, stat):
 		if stat == 'back':
-			self.ui_training_menu.hide()
-			self.ui_main_menu.show()
+			self.do_escape()
 		else:
 			prev_stat = getattr(self.player.monster, stat)
 			setattr(self.player.monster, stat, prev_stat + 1)
+			self.player.weeks += 1
 			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player.monster, stat))
 			print(result_str)
-			self.ui_training_results_text['text'] = result_str
-
-			self.ui_training_menu.hide()
-			self.ui_training_results.show()
+			self.base.ui.execute_js('switchToTab("{}")'.format('training-results'))
+			self.base.ui.execute_js('setupNav({})'.format(['Okay']))
+			self.base.ui.execute_js('setTrainingResults("{}")'.format(result_str))
+			self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks))
 
 	def do_monster_stats(self):
-		self.ui_main_menu.hide()
-		self.ui_monster_stats.show()
+		self.base.ui.execute_js('switchToTab("{}")'.format('monster-info'))
+		self.base.ui.execute_js('setMonsterInfo({})'.format(json.dumps(self.player.monster.serialize())))
 
 	def do_exit(self):
 		self.base.change_state(TitleState)
-
-	def setup_ui(self):
-		# Main menu
-		self.ui_main_menu = DirectGui.DirectFrame(frameSize=(-4.0/3, 4.0/3, -1, 1),
-			frameColor=(0, 0, 0, 0))
-		self.ui_main_menu.reparentTo(self.ui_base)
-
-		for i, v in enumerate(self.options):
-			btn = DirectGui.DirectButton(text=v[0],
-										 text_fg=(1, 1, 1, 1),
-										 text_shadow=(0, 0, 0, 1),
-										 relief=None,
-										 command=v[1],
-										 scale=0.2,
-										 pos=(0, 0, 0.7 - 0.35 * i),
-										 )
-			btn.reparentTo(self.ui_main_menu)
-
-		self.ui_weeks = DirectGui.DirectLabel(text='',
-											  text_fg=(1, 1, 1, 1),
-											  text_shadow=(0, 0, 0, 1),
-											  scale=0.1,
-											  pos=(-1.0, 0, -0.9),
-											  )
-		self.ui_weeks.reparentTo(self.ui_base)
-
-		# Training menu
-		self.ui_training_menu = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
-		self.ui_training_menu.reparentTo(self.ui_base)
-		self.ui_training_menu.hide()
-
-		for i, v in enumerate(self.training_options):
-			btn = DirectGui.DirectButton(text=v.title(),
-										 text_fg=(1, 1, 1, 1),
-										 text_shadow=(0, 0, 0, 1),
-										 relief=None,
-										 command=self.do_training,
-										 extraArgs=[v],
-										 scale=0.15,
-										 pos=(0, 0, 0.8 - 0.25 * i),
-										 )
-			btn.reparentTo(self.ui_training_menu)
-
-		# Training results
-		self.ui_training_results = DirectGui.DirectFrame(frameColor=(0, 0, 0, 0))
-		self.ui_training_results.reparentTo(self.ui_base)
-		self.ui_training_results.hide()
-
-		self.ui_training_results_text = DirectGui.DirectLabel(text='',
-															  text_fg=(1, 1, 1, 1),
-															  text_shadow = (0, 0, 0, 1),
-															  scale=0.2,
-															  pos=(0, 0, 0.6),
-															  )
-		self.ui_training_results_text.reparentTo(self.ui_training_results)
-
-		def training_results_okay():
-			self.ui_training_results.hide()
-			self.ui_main_menu.show()
-			self.player.weeks += 1
-		self.ui_training_results_okay = DirectGui.DirectButton(text="Okay",
-															   command=training_results_okay,
-															   scale=0.2,
-															   pos=(0, 0, -0.2),
-															   )
-		self.ui_training_results_okay.reparentTo(self.ui_training_results)
-
-		# Monster stats
-		self.ui_monster_stats = DirectGui.DirectFrame(frameColor=(1, 1, 1, 0.33),
-													  frameSize=(-1, 1, -0.7, 0.9),
-													  relief=DirectGuiGlobals.GROOVE,
-													  borderWidth=(0.01, 0.01),
-													  )
-		self.ui_monster_stats.reparentTo(self.ui_base)
-		self.ui_monster_stats.hide()
-
-		self.ui_monster_name = DirectGui.DirectLabel(text='',
-													 frameColor=(0, 0, 0, 0),
-													 scale=0.1,
-													 )
-		self.ui_monster_name['text'] = "{} [{}]".format(self.player.monster.name, self.player.monster.race)
-		self.ui_monster_name.resetFrameSize()
-		self.ui_monster_name.setPos(0, 0, 0.7)
-		self.ui_monster_name.reparentTo(self.ui_monster_stats)
-		self.ui_monster_base_stats = {}
-		for i, v in enumerate(self.training_options):
-			if v == 'back':
-				continue
-
-			label = DirectGui.DirectLabel(text=v.title(),
-									  frameColor=(0, 0, 0, 0),
-									  scale=0.05,
-									  pos=(-0.8, 0, 0.55 - 0.1 * i),
-									  )
-			label.reparentTo(self.ui_monster_stats)
-			bar = DirectGui.DirectWaitBar(range=100,
-										  value=0,
-										  scale=0.3,
-										  pos=(-0.35, 0, 0.56 - 0.1 * i),
-										  )
-			bar.reparentTo(self.ui_monster_stats)
-			self.ui_monster_base_stats[v] = bar
-
-		def monster_stats_okay():
-			self.ui_monster_stats.hide()
-			self.ui_main_menu.show()
-		self.ui_monster_stats_okay = DirectGui.DirectButton(text="Okay",
-															text_fg=(1, 1, 1, 1),
-															text_shadow=(0, 0, 0, 1),
-															relief=None,
-															command=monster_stats_okay,
-															scale=0.1,
-															pos=(0, 0, -0.6),
-															)
-		self.ui_monster_stats_okay.reparentTo(self.ui_monster_stats)
-
-	def update_ui(self):
-		self.ui_weeks['text'] = "Weeks: {}".format(self.player.weeks)
-
-		for k, v in self.ui_monster_base_stats.iteritems():
-			v['value'] = getattr(self.player.monster, k)
 
 
 class TitleState(GameState):
@@ -458,7 +349,7 @@ class TitleState(GameState):
 			if nav == 'load-trainer':
 				self.base.ui.execute_js('loadTrainer()')
 			else:
-				print(nav, item)
+				print("Unknown", nav, item)
 
 	def do_new(self):
 		self.base.ui.execute_js('switchToTab("{}")'.format('new-trainer'))

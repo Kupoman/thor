@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <ul class="nav nav-tabs hide" role="tablist" id="tabs">
+        <li><a href="#main-menu" role="tab" data-toggle="tab"></a></li>
+        <li><a href="#training-menu" role="tab" data-toggle="tab"></a></li>
+        <li><a href="#training-results" role="tab" data-toggle="tab"></a></li>
+        <li><a href="#monster-info" role="tab" data-toggle="tab"></a></li>
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade in active" id="main-menu">
+            <div class="row">
+                <ul class="col-md-2 col-md-offset-5 nav nav-pills nav-stacked current">
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="training-menu">
+            <div class="row">
+                <ul class="col-md-2 col-md-offset-5 nav nav-pills nav-stacked">
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="training-results">
+            <div class="row">
+                <h1 id="training-results-msg" class="col-md-offset-1"></h1>
+            </div>
+            <div class="row">
+                <ul class="col-md-2 col-md-offset-5 nav nav-pills nav-stacked">
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="monster-info">
+            <div class="row">
+                <h1 id="monster-name"></h1>
+                <div id="monster-stats"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <h4 id="weeks"></h4>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+    function setWeeks(weeks) {
+        $('#weeks').html('<span>Weeks: ' + weeks + '</span>');
+    }
+
+    function setTrainingResults(msg) {
+        console.log(msg);
+        $('#training-results-msg').html(msg);
+    }
+
+    function setMonsterInfo(monster) {
+        $('#monster-name').html(monster.name + '[' + monster.race + ']');
+        ['Attack', 'Defense', 'Intelligence', 'Stamina', 'Speed'].forEach(function(stat) {
+            var v = monster[stat.toLowerCase()];
+            $('#monster-stats').append('<span>' + stat + ':</span>');
+            $('#monster-stats').append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' + v + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + v + '%;">' + v + '</div></div>');
+        });
+    }
+{% endblock %}
