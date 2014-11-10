@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% extends "base.html" %}
 
-    <link href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="common.js"></script>
-</head>
-<body>
+{% block content %}
 <div class="container-fluid">
     <ul class="nav nav-tabs hide" role="tablist" id="tabs">
         <li><a href="#main-menu" role="tab" data-toggle="tab"></a></li>
@@ -46,11 +38,9 @@
         </div>
     </div>
 </div>
+{% endblock %}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="common.js"></script>
-<script>
+{% block script %}
     $('#new-trainer form').submit(function(event) {
         event.preventDefault();
         new_trainer($('#new-trainer input').val());
@@ -66,6 +56,4 @@
     function loadTrainer() {
         load_trainer($('#load-trainer li.active a').attr('href'));
     }
-</script>
-</body>
-</html>
+{% endblock %}

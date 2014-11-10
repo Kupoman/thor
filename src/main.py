@@ -14,6 +14,7 @@ from panda3d.core import *
 
 from monster import Monster
 from collections import OrderedDict
+from jinja2 import Environment, FileSystemLoader
 import commands
 import appdirs
 import uuid
@@ -59,7 +60,8 @@ class GameState(object, DirectObject.DirectObject):
 		self.quit = False
 
 		if ui is not None:
-			self.base.ui.load('ui/' + ui + '.html')
+			template = self.base.ui_env.get_template(ui + '.html')
+			self.base.ui.load_string(template.render(), 'ui/' + ui + '.html')
 
 			self.accept('arrow_up', self.base.ui.execute_js, ['navUp()'])
 			self.accept('arrow_up-repeat', self.base.ui.execute_js, ['navUp()'])
@@ -493,6 +495,15 @@ class Game(ShowBase):
 
 		# Setup UI
 		self.ui = CEFPanda()
+		src_dir = os.path.dirname(os.path.abspath(__file__))
+		template_folder = os.path.join(src_dir, 'ui')
+		self.ui_env = Environment(loader=FileSystemLoader(template_folder),
+								  trim_blocks=True)
+		# HACK - CEFPython requires a regular LoadURL before LoadString works,
+		# so we just give it something to work on. This doesn't render nicely,
+		# but we replace it immediately with the UI for the first GameState.
+		# CEFPython issue: https://code.google.com/p/chromiumembedded/issues/detail?id=763
+		self.ui.load('ui/base.html')
 
 		# Setup the player and the player's monster
 		self.player = None
