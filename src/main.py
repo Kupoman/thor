@@ -375,7 +375,7 @@ class Game(ShowBase):
 		self.cam2dp.node().getDisplayRegion(0).setSort(-20)
 
 		# Setup saves
-		self.save_dir = os.path.join(appdirs.user_data_dir('ThorGame'), 'saves')
+		self.save_dir = os.path.join(appdirs.user_data_dir('ThorGame', roaming=True), 'saves')
 		if not os.path.exists(self.save_dir):
 			os.makedirs(self.save_dir)
 		self.saved_trainer_ids = [i.split('.')[0] for i in os.listdir(self.save_dir)]
