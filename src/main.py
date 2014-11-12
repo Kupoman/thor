@@ -1,5 +1,6 @@
 from __future__ import print_function
 import sys
+import math
 
 import os
 os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
@@ -111,6 +112,8 @@ class CombatState(GameState):
 		GameState.__init__(self, _base)
 		self.accept("enter", self.cb_next_turn)
 
+		self.clock = ClockObject()
+
 		# Set Camera
 		self.base.disableMouse()
 		self.base.camera.setPos(0, -5, 2.25)
@@ -137,6 +140,7 @@ class CombatState(GameState):
 		self.combatants['green'].target = self.combatants['red']
 
 		# Combat vars
+		self.combat_time = 60.0
 		self.turn = 60
 		self.player_spells = [
 			commands.Attack,
@@ -220,6 +224,19 @@ class CombatState(GameState):
 
 	def main_loop(self):
 		GameState.main_loop(self)
+
+		# Not sure what the behavior is on ClockObject.getDt when there are not
+		# two ticks to compare. Making sure to initialize the clock just in case
+		if self.clock.getFrameCount() == 0:
+			self.clock.tick()
+			return
+
+		self.clock.tick()
+		dt = self.clock.getDt()
+
+		self.combat_time -= dt
+		self.turn = int(math.ceil(self.combat_time))
+
 		for team in self.teams:
 			team.update()
 
@@ -230,7 +247,7 @@ class CombatState(GameState):
 			else:
 				commands.Attack.run(self.combatants['green'])
 				self.player_command.run(self.player.monster)
-			self.turn -= 1
+			# self.turn -= 1
 			self.combatants['red'].current_stamina += self.combatants['red'].recovery
 			self.combatants['green'].current_stamina += self.combatants['green'].recovery
 			self.player_command = None
