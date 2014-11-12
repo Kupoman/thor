@@ -27,6 +27,7 @@ class Trainer(object):
 	def deserialize(cls, json_dictionary):
 		ret = cls()
 		ret.weeks = json_dictionary['weeks']
+		ret.name = json_dictionary['name']
 		ret.uuid = json_dictionary['uuid']
 		if 'monster' in json_dictionary:
 			ret.monster = Monster.deserialize(json_dictionary['monster'])
