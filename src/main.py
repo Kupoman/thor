@@ -20,6 +20,7 @@ import appdirs
 import uuid
 import json
 
+from combat import CombatTeam
 
 class Trainer(object):
 	@classmethod
@@ -115,26 +116,21 @@ class CombatState(GameState):
 		self.base.camera.setHpr(0, -10, 0)
 		self.base.camLens.setFov(65)
 
+		g_race = "golem" if self.player.monster.race.lower() == "ogre" else "ogre"
+		hpr_list = ((-90, 0, 0), (90, 0, 0))
+		pos_list = ((-2, 2, 0), (2, 2, 0))
+		monster_list = ((self.player.monster,)*3, (Monster.new_from_race(g_race),)*3)
+		self.teams = [CombatTeam(monster_list[i], pos_list[i], hpr_list[i]) for i in range(2)]
+
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = self.player.monster
 		self.combatants['red'].current_stamina = 50
 		self.combatants['red'].current_hp = self.combatants['red'].hp
-		self.model_red = None
-		if self.combatants['red'].visual:
-			self.model_red = base.loader.loadModel(self.combatants['red'].visual)
-			self.model_red.setPos(-2, 1.5, 0)
-			self.model_red.setHpr(-90, 0, 0)
-			self.model_red.reparentTo(base.render)
 		g_race = "golem" if self.player.monster.race.lower() == "ogre" else "ogre"
 		self.combatants['green'] = Monster.new_from_race(g_race)
 		self.combatants['green'].current_hp = self.combatants['green'].hp
 		self.combatants['green'].current_stamina = 50
-		if self.combatants['green'].visual:
-			self.model_green = base.loader.loadModel(self.combatants['green'].visual)
-			self.model_green.setPos(2, 1.5, 0)
-			self.model_green.setHpr(90, 0, 0)
-			self.model_green.reparentTo(base.render)
 
 		self.combatants['red'].target = self.combatants['green']
 		self.combatants['green'].target = self.combatants['red']
@@ -154,10 +150,8 @@ class CombatState(GameState):
 
 	def destroy(self):
 		GameState.destroy(self)
-		if self.model_red:
-			self.model_red.removeNode()
-		if self.model_green:
-			self.model_green.removeNode()
+		for team in self.teams:
+			team.destroy()
 
 	def cb_next_turn(self):
 		self.player_command = commands.Wait
@@ -225,6 +219,8 @@ class CombatState(GameState):
 
 	def main_loop(self):
 		GameState.main_loop(self)
+		for team in self.teams:
+			team.update()
 
 		if self.player_command:
 			if self.player.monster.initiative > self.combatants['green']:
