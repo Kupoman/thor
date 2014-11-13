@@ -231,6 +231,23 @@ class CombatState(GameState):
 			self.clock.tick()
 			return
 
+		# Time's up!
+		# Resolve combat
+		if self.turn <= 0:
+			winner = self.teams[0]
+			winning_percent = winner.get_percent_hp()
+			for team in self.teams[1:]:
+				percent = team.get_percent_hp()
+				if percent > winning_percent:
+					winning_percent = percent
+					winner = team
+
+			print("%s win with %.2f%% hp remaining!" %
+				(str([monster.data.name for monster in team.monsters]),
+				winning_percent*100))
+			self.player.weeks += 1
+			self.base.change_state(FarmState)
+
 		self.clock.tick()
 		dt = self.clock.getDt()
 

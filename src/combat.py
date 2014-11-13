@@ -23,6 +23,15 @@ class CombatTeam(object):
 			monster.model.setHpr(start_hpr)
 			monster.model.setPos(Vec3(start_pos) + offsets[i])
 
+	def get_percent_hp(self):
+		max = 0.0
+		cur = 0.0
+		for monster in self.monsters:
+			max += monster.data.hp
+			cur += monster.hp
+
+		return cur/max
+
 	def update(self):
 		for monster in self.monsters:
 			monster.stamina += 1
