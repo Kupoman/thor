@@ -166,6 +166,7 @@ class CombatState(GameState):
 		self.player_command = commands.Wait
 
 	def setup_ui(self):
+		# Combat clock
 		self.ui_turn = DirectGui.DirectLabel(text=str(self.turn),
 											 text_fg=(1, 1, 1, 1),
 											 text_shadow=(0, 0, 0, 1),
@@ -174,21 +175,52 @@ class CombatState(GameState):
 											 pos=(0, 0, 0.8))
 		self.ui_turn.reparentTo(self.ui_base)
 
-		_range = value = self.combatants['red'].current_hp
-		self.ui_player_health = DirectGui.DirectWaitBar(range=_range,
-														value=value,
-														barColor=(0, 1, 0, 1),
-														scale=0.3,
-														pos=(-0.8, 0, 0.4))
-		self.ui_player_health.reparentTo(self.ui_base)
 
-		self.ui_player_stamina = DirectGui.DirectWaitBar(range=100,
-														 value=0,
-														 barColor=(0, 0, 1, 1),
-														 scale=(0.3, 1, 0.15),
-														 pos=(-0.8, 0, 0.37))
-		self.ui_player_stamina.reparentTo(self.ui_base)
+		# Player team UI
+		self.ui_player_healths = []
+		self.ui_player_staminas = []
+		for i, monster in enumerate(self.teams[0].monsters):
+			_range = value = monster.hp
+			ui_health = DirectGui.DirectWaitBar(range=_range,
+															value=value,
+															barColor=(0, 1, 0, 1),
+															scale=(0.3, 1, 0.1),
+															pos=(-0.6 - i*0.2, 0, 0.45 - i*0.05))
+			ui_health.reparentTo(self.ui_base)
+			self.ui_player_healths.append(ui_health)
 
+			value = monster.stamina
+			ui_stamina = DirectGui.DirectWaitBar(range=100,
+															 value=value,
+															 barColor=(0, 0, 1, 1),
+															 scale=(0.3, 1, 0.05),
+															 pos=(-0.6 - i*0.2, 0, 0.44 - i*0.05))
+			ui_stamina.reparentTo(self.ui_base)
+			self.ui_player_staminas.append(ui_stamina)
+
+		# Enemy team UI
+		self.ui_enemy_healths = []
+		self.ui_enemy_staminas = []
+		for i, monster in enumerate(self.teams[1].monsters):
+			_range = value = monster.hp
+			ui_health = DirectGui.DirectWaitBar(range=_range,
+															value=value,
+															barColor=(0, 1, 0, 1),
+															scale=(0.3, 1, 0.1),
+															pos=(0.6 + i*0.2, 0, 0.45 - i*0.05))
+			ui_health.reparentTo(self.ui_base)
+			self.ui_enemy_healths.append(ui_health)
+
+			value = monster.stamina
+			ui_stamina = DirectGui.DirectWaitBar(range=100,
+															 value=value,
+															 barColor=(0, 0, 1, 1),
+															 scale=(0.3, 1, 0.05),
+															 pos=(0.6 + i*0.2, 0, 0.44 - i*0.05))
+			ui_stamina.reparentTo(self.ui_base)
+			self.ui_enemy_staminas.append(ui_stamina)
+
+		# Command list
 		num_spells = len(self.player_spells) - 1
 		def use_command(command):
 			self.player_command = command
@@ -204,27 +236,16 @@ class CombatState(GameState):
 		for i in self.ui_player_spells:
 			i.reparentTo(self.ui_base)
 
-		_range = value = self.combatants['green'].current_hp
-		self.ui_enemy_health = DirectGui.DirectWaitBar(range=_range,
-													   value=value,
-													   barColor=(0, 1, 0, 1),
-													   scale=0.3,
-													   pos=(0.8, 0, 0.4))
-		self.ui_enemy_health.reparentTo(self.ui_base)
-
-		self.ui_enemy_stamina = DirectGui.DirectWaitBar(range=100,
-														value=0,
-														barColor=(0, 0, 1, 1),
-														scale=(0.3, 1, 0.15),
-														pos=(0.8, 0, 0.37))
-		self.ui_enemy_stamina.reparentTo(self.ui_base)
-
 	def update_ui(self):
 		self.ui_turn['text'] = str(self.turn)
-		self.ui_player_health['value'] = self.combatants['red'].current_hp
-		self.ui_player_stamina['value'] = self.combatants['red'].current_stamina
-		self.ui_enemy_health['value'] = self.combatants['green'].current_hp
-		self.ui_enemy_stamina['value'] = self.combatants['green'].current_stamina
+		for i, ui_health, ui_stamina in [(i, self.ui_player_healths[i], self.ui_player_staminas[i]) for i in range(len(self.ui_player_healths))]:
+			monster = self.teams[0].monsters[i]
+			ui_health['value'] = monster.hp
+			ui_stamina['value'] = monster.stamina
+		for i, ui_health, ui_stamina in [(i, self.ui_enemy_healths[i], self.ui_enemy_staminas[i]) for i in range(len(self.ui_player_healths))]:
+			monster = self.teams[1].monsters[i]
+			ui_health['value'] = monster.hp
+			ui_stamina['value'] = monster.stamina
 
 	def main_loop(self):
 		GameState.main_loop(self)
