@@ -435,7 +435,6 @@ class Game(ShowBase):
 		DirectGuiGlobals.setDefaultFont(default_font)
 
 		self.accept("f1", sys.exit)
-		self.win.setCloseRequestEvent("escape")
 
 		self.background = OnscreenImage(parent=self.render2dp, image="art/menu_background.png")
 		self.cam2dp.node().getDisplayRegion(0).setSort(-20)
