@@ -74,7 +74,7 @@ class GameState(object, DirectObject.DirectObject):
 			self.accept('arrow_down', self.base.ui.execute_js, ['navDown()'])
 			self.accept('arrow_down-repeat', self.base.ui.execute_js, ['navDown()'])
 			self.accept('enter', self.base.ui.execute_js, ['navEnter()'])
-			self.accept('f1', self.do_escape)
+			self.accept('escape', self.do_escape)
 
 			self.base.ui.execute_js("setupNav({})".format(json.dumps(self.nav.keys())), True)
 			self.base.ui.set_js_function("do_nav", self.do_nav)
@@ -429,7 +429,7 @@ class Game(ShowBase):
 		default_font.setPixelsPerUnit(64)
 		DirectGuiGlobals.setDefaultFont(default_font)
 
-		self.accept("escape", sys.exit)
+		self.accept("f1", sys.exit)
 		self.win.setCloseRequestEvent("escape")
 
 		self.background = OnscreenImage(parent=self.render2dp, image="art/menu_background.png")
