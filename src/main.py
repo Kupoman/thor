@@ -73,6 +73,10 @@ class GameState(object, DirectObject.DirectObject):
 			self.accept('arrow_up-repeat', self.base.ui.execute_js, ['navUp()'])
 			self.accept('arrow_down', self.base.ui.execute_js, ['navDown()'])
 			self.accept('arrow_down-repeat', self.base.ui.execute_js, ['navDown()'])
+			self.accept('k', self.base.ui.execute_js, ['navUp()'])
+			self.accept('k-repeat', self.base.ui.execute_js, ['navUp()'])
+			self.accept('j', self.base.ui.execute_js, ['navDown()'])
+			self.accept('j-repeat', self.base.ui.execute_js, ['navDown()'])
 			self.accept('enter', self.base.ui.execute_js, ['navEnter()'])
 			self.accept('escape', self.do_escape)
 
