@@ -62,7 +62,7 @@ class Monster(object):
 
 	@property
 	def recovery(self):
-		return 0.125 * self.stamina
+		return 0.25 * self.stamina
 
 	@property
 	def special_attack(self):
