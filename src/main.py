@@ -248,7 +248,7 @@ class CombatState(GameState):
 
 			print("%s win with %.2f%% hp remaining!" %
 				(str([monster.data.name for monster in team.monsters]),
-				winning_percent*100))
+				winning_percent))
 			self.player.weeks += 1
 			self.base.change_state(FarmState)
 
@@ -436,7 +436,7 @@ class Game(ShowBase):
 		self.player.monster = Monster.new_from_race("ogre")
 
 		# Setup game states
-		self.game_state = TitleState(self)
+		self.game_state = CombatState(self)
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
 	def change_state(self, new_state):

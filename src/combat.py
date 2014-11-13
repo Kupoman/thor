@@ -30,7 +30,7 @@ class CombatTeam(object):
 			max += monster.data.hp
 			cur += monster.hp
 
-		return cur/max
+		return cur/max * 100
 
 	def update(self):
 		for monster in self.monsters:
