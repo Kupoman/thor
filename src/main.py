@@ -312,12 +312,12 @@ class FarmState(GameState):
 		GameState.__init__(self, _base, 'farm')
 
 		self.training_options = [
-			'attack',
-			'defense',
-			'intelligence',
-			'stamina',
-			'speed',
-			'back',
+			'Attack',
+			'Defense',
+			'Intelligence',
+			'Stamina',
+			'Speed',
+			'Back',
 		]
 
 		self.base.background.setImage("art/menu_background.png")
@@ -345,6 +345,7 @@ class FarmState(GameState):
 		self.base.ui.execute_js('setupNav({})'.format(self.training_options))
 
 	def do_training(self, stat):
+		stat = stat.lower()
 		if stat == 'back':
 			self.do_escape()
 		else:
