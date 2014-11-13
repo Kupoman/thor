@@ -62,6 +62,7 @@
 
     function setMonsterInfo(monster) {
         $('#monster-name').html(monster.name + '[' + monster.race + ']');
+        $('#monster-stats').empty();
         ['Attack', 'Defense', 'Intelligence', 'Stamina', 'Speed'].forEach(function(stat) {
             var v = monster[stat.toLowerCase()];
             $('#monster-stats').append('<span>' + stat + ':</span>');
