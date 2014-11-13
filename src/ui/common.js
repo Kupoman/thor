@@ -1,4 +1,5 @@
 function setupNav(nav) {
+    $('.nav.current').empty();
     nav.forEach(function(i) {
         $('.nav.current').append('<li><a href="#">' + i + '</a></li>');
     });
