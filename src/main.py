@@ -37,11 +37,12 @@ class Trainer(object):
 
 		return ret
 
-	def __init__(self, name="Trainer"):
+	def __init__(self, name="Trainer", dont_save=False):
 		self.name = name
 		self.monster = None
 		self.weeks = 0
 		self.uuid = str(uuid.uuid4())
+		self.dont_save = dont_save
 		while uuid in base.saved_trainer_ids:
 			self.uuid = str(uuid.uuid4())
 
@@ -105,8 +106,9 @@ class GameState(object, DirectObject.DirectObject):
 		self.ignoreAll()
 		self.ui_base.destroy()
 
-		with open(os.path.join(self.base.save_dir, self.player.uuid) + '.sav', 'w') as f:
-			json.dump(self.player.serialize(), f)
+		if not self.player.dont_save:
+			with open(os.path.join(self.base.save_dir, self.player.uuid) + '.sav', 'w') as f:
+				json.dump(self.player.serialize(), f)
 
 
 class CombatState(GameState):
@@ -429,10 +431,9 @@ class Game(ShowBase):
 		# CEFPython issue: https://code.google.com/p/chromiumembedded/issues/detail?id=763
 		self.ui.load('ui/base.html')
 
-		# Setup the player and the player's monster
-		self.player = None
-		#self.player = Trainer()
-		#self.player.monster = Monster(name="Red", defense=25, speed=15)
+		# Setup the default player and monster
+		self.player = Trainer(dont_save=True)
+		self.player.monster = Monster(name="Red", defense=25, speed=15)
 
 		# Setup game states
 		self.game_state = TitleState(self)
