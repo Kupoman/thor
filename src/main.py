@@ -433,7 +433,7 @@ class Game(ShowBase):
 
 		# Setup the default player and monster
 		self.player = Trainer(dont_save=True)
-		self.player.monster = Monster(name="Red", defense=25, speed=15)
+		self.player.monster = Monster.new_from_race("ogre")
 
 		# Setup game states
 		self.game_state = TitleState(self)
