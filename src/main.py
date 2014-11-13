@@ -3,7 +3,9 @@ import sys
 import math
 
 import os
-os.environ['PANDA_PRC_DIR'] = os.path.join(os.path.dirname(__file__), 'etc')
+_file_dir = os.path.abspath(os.path.dirname(__file__))
+os.environ['PANDA_PRC_DIR'] = os.path.join(_file_dir, 'etc')
+os.chdir(_file_dir)
 
 from cefpanda import CEFPanda
 
@@ -417,7 +419,7 @@ class Game(ShowBase):
 
 		# Setup UI
 		self.ui = CEFPanda()
-		src_dir = os.path.dirname(os.path.abspath(__file__))
+		src_dir = _file_dir
 		template_folder = os.path.join(src_dir, 'ui')
 		self.ui_env = Environment(loader=FileSystemLoader(template_folder),
 								  trim_blocks=True)
