@@ -280,7 +280,7 @@ class CombatState(GameState):
 		self.turn = int(math.ceil(self.combat_time))
 
 		for team in self.teams:
-			team.update()
+			team.update(dt)
 
 		if self.player_command:
 			if self.player.monster.initiative > self.combatants['green']:
@@ -458,7 +458,7 @@ class Game(ShowBase):
 		self.player.monster = Monster.new_from_race("ogre")
 
 		# Setup game states
-		self.game_state = CombatState(self)
+		self.game_state = TitleState(self)
 		self.taskMgr.add(self.main_loop, "MainLoop")
 
 	def change_state(self, new_state):

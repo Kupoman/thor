@@ -32,9 +32,9 @@ class CombatTeam(object):
 
 		return cur/max * 100
 
-	def update(self):
+	def update(self, dt):
 		for monster in self.monsters:
-			monster.stamina += 1
+			monster.stamina += monster.data.recovery * dt
 
 	def destroy(self):
 		for monster in self.monsters:
