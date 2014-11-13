@@ -365,6 +365,7 @@ class FarmState(GameState):
 
 	def do_monster_stats(self):
 		self.base.ui.execute_js('switchToTab("{}")'.format('monster-info'))
+		self.base.ui.execute_js('setupNav({})'.format(['Okay']))
 		self.base.ui.execute_js('setMonsterInfo({})'.format(json.dumps(self.player.monster.serialize())))
 
 	def do_exit(self):
