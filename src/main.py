@@ -327,8 +327,21 @@ class FarmState(GameState):
 		self.base.background.setImage("art/menu_background.png")
 		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
 
+
+		if self.player.monster is None:
+			self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
+			self.base.ui.execute_js('setupNav({})'.format(json.dumps([i['race'] for i in self.base.monster_data])), onload=True)
+			self.in_market = True
+		else:
+			self.in_market = False
+
+		def set_monster(race):
+			self.player.monster = Monster.new_from_race(race)
+		self.base.ui.set_js_function("set_monster", set_monster)
+
 	def do_escape(self):
-		self.base.ui.execute_js('switchToTab("{}")'.format('main-menu'))
+		if not self.in_market:
+			self.base.ui.execute_js('switchToTab("{}")'.format('main-menu'))
 
 	def do_nav(self, nav, item):
 		if not GameState.do_nav(self, nav, item):
@@ -337,7 +350,21 @@ class FarmState(GameState):
 			elif nav == 'training-results':
 				self.do_escape()
 			elif nav == 'monster-info':
-				self.do_escape()
+				if item == 'Cancel':
+					self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
+					self.base.ui.execute_js('setupNav({})'.format(json.dumps([i['name'] for i in self.base.monster_data])), onload=True)
+					self.temp_monster = None
+				elif item == 'Buy':
+					self.base.ui.execute_js('setMonster()')
+					self.in_market = False
+					self.do_escape()
+				else:
+					self.do_escape()
+			elif nav == 'market':
+				self.base.ui.execute_js('switchToTab("{}")'.format('monster-info'))
+				self.base.ui.execute_js('setupNav({})'.format(['Buy', 'Cancel']))
+				monster = [i for i in self.base.monster_data if i['race'] == item][0]
+				self.base.ui.execute_js('setMonsterInfo({})'.format(json.dumps(monster)))
 			else:
 				print("Unknown", nav, item)
 
@@ -393,8 +420,8 @@ class TitleState(GameState):
 	def setup_ui(self):
 		def new_trainer(name):
 			self.change_player(Trainer(name))
-			self.player.monster = Monster.new_from_race("ogre")
-			self.player.monster.name = "Red"
+			#self.player.monster = Monster.new_from_race("ogre")
+			#self.player.monster.name = "Red"
 			self.base.change_state(FarmState)
 		self.base.ui.set_js_function("new_trainer", new_trainer)
 
@@ -457,6 +484,14 @@ class Game(ShowBase):
 		# but we replace it immediately with the UI for the first GameState.
 		# CEFPython issue: https://code.google.com/p/chromiumembedded/issues/detail?id=763
 		self.ui.load('ui/base.html')
+
+		# Load monster data
+		data_folder = os.path.join(src_dir, 'data')
+		self.monster_data = []
+		for i in os.listdir(data_folder):
+			if i.startswith('race'):
+				with open(os.path.join(data_folder, i)) as f:
+					self.monster_data.append(json.load(f))
 
 		# Setup the default player and monster
 		self.player = Trainer(dont_save=True)

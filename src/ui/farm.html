@@ -6,6 +6,7 @@
         <li><a href="#main-menu" role="tab" data-toggle="tab"></a></li>
         <li><a href="#training-menu" role="tab" data-toggle="tab"></a></li>
         <li><a href="#training-results" role="tab" data-toggle="tab"></a></li>
+        <li><a href="#market" role="tab" data-toggle="tab"></a></li>
         <li><a href="#monster-info" role="tab" data-toggle="tab"></a></li>
     </ul>
 
@@ -30,6 +31,16 @@
             </div>
             <div class="row">
                 <ul class="col-md-2 col-md-offset-5 nav nav-pills nav-stacked">
+                </ul>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="market">
+            <div class="row">
+                <h1 class="col-md-offset-1 white-with-shadow">Select a monster</h1>
+            </div>
+            <div class="row">
+                <ul class="col-md-offset-5 col-md-2 nav nav-pills nav-stacked">
                 </ul>
             </div>
         </div>
@@ -72,5 +83,10 @@
             $('#monster-stats').append('<span>' + stat + ':</span>');
             $('#monster-stats').append('<div class="progress"><div class="progress-bar" role="progressbar" aria-valuenow="' + v + '" aria-valuemin="0" aria-valuemax="100" style="width: ' + v + '%;">' + v + '</div></div>');
         });
+    }
+
+    function setMonster() {
+        console.log($('#market li.active a').html().toLowerCase());
+        set_monster($('#market li.active a').html().toLowerCase());
     }
 {% endblock %}
