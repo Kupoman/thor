@@ -352,7 +352,7 @@ class FarmState(GameState):
 			elif nav == 'monster-info':
 				if item == 'Cancel':
 					self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
-					self.base.ui.execute_js('setupNav({})'.format(json.dumps([i['name'] for i in self.base.monster_data])), onload=True)
+					self.base.ui.execute_js('setupNav({})'.format(json.dumps([i['race'] for i in self.base.monster_data])), onload=True)
 					self.temp_monster = None
 				elif item == 'Buy':
 					self.base.ui.execute_js('setMonster()')
