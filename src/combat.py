@@ -1,4 +1,7 @@
+import random
+
 from panda3d.core import *
+from ai.manager import Manager as AIManager
 
 
 class CombatMonster(object):
@@ -8,6 +11,13 @@ class CombatMonster(object):
 		self.stamina = 50
 		self.model = base.loader.loadModel(self.data.visual)
 		self.model.reparentTo(base.render)
+		self.ai_handle = -1
+
+	@property
+	def wants_to_cast(self):
+		if random.random() < self.stamina/5000.0:
+			return 1
+		return 0
 
 
 class CombatTeam(object):
@@ -39,3 +49,20 @@ class CombatTeam(object):
 	def destroy(self):
 		for monster in self.monsters:
 			monster.model.removeNode()
+
+
+class CombatWorld(object):
+	def __init__(self):
+		self.teams = []
+		self.ai_manager = AIManager()
+
+	def add_team(self, roster, start_pos, start_hpr):
+		team = CombatTeam(roster, start_pos, start_hpr)
+		self.teams.append(team)
+		for monster in team.monsters:
+			monster.ai_handle = self.ai_manager.add_agent(monster)
+
+	def update(self, dt):
+		self.ai_manager.update()
+		for team in self.teams:
+			team.update(dt)

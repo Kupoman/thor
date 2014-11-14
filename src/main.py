@@ -23,7 +23,7 @@ import appdirs
 import uuid
 import json
 
-from combat import CombatTeam
+from combat import CombatTeam, CombatWorld
 
 class Trainer(object):
 	@classmethod
@@ -132,7 +132,11 @@ class CombatState(GameState):
 		hpr_list = ((-90, 0, 0), (90, 0, 0))
 		pos_list = ((-2, 2, 0), (2, 2, 0))
 		monster_list = ((self.player.monster,)*3, (Monster.new_from_race(g_race),)*3)
-		self.teams = [CombatTeam(monster_list[i], pos_list[i], hpr_list[i]) for i in range(2)]
+		# self.teams = [CombatTeam(monster_list[i], pos_list[i], hpr_list[i]) for i in range(2)]
+		self.combat_world = CombatWorld()
+		self.combat_world.add_team(monster_list[0], pos_list[0], hpr_list[0])
+		self.combat_world.add_team(monster_list[1], pos_list[1], hpr_list[1])
+		self.teams = self.combat_world.teams
 
 		# Combatants
 		self.combatants = {}
@@ -283,6 +287,7 @@ class CombatState(GameState):
 		self.combat_time -= dt
 		self.turn = int(math.ceil(self.combat_time))
 
+		self.combat_world.update(dt)
 		for team in self.teams:
 			team.update(dt)
 
