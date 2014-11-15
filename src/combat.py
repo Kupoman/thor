@@ -49,6 +49,8 @@ class CombatTeam(object):
 
 	def update(self, dt):
 		for monster in self.monsters:
+			if monster.hp <= 0:
+				continue
 			monster.stamina += monster.data.recovery * dt
 
 	def destroy(self):
@@ -68,6 +70,12 @@ class CombatWorld(object):
 			monster.ai_handle = self.ai_manager.add_agent(monster)
 
 	def update(self, dt):
-		self.ai_manager.update()
 		for team in self.teams:
+			for monster in team.monsters:
+				if monster.hp <= 0:
+					if monster.ai_handle != -1:
+						self.ai_manager.remove_agent(monster.ai_handle)
+					monster.ai_handle = -1
 			team.update(dt)
+
+		self.ai_manager.update()
