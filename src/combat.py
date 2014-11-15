@@ -26,9 +26,9 @@ class CombatTeam(object):
 		self.monsters = [CombatMonster(monster) for monster in monsters]
 
 		offsets = [
-			Vec3(0, -2, 0),
-			Vec3(0, 0, 0),
 			Vec3(0, 2, 0),
+			Vec3(0, 0, 0),
+			Vec3(0, -2, 0),
 		]
 		for i, monster in enumerate(self.monsters):
 			monster.model.setHpr(start_hpr)
