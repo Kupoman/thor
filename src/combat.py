@@ -50,6 +50,9 @@ class CombatTeam(object):
 	def update(self, dt):
 		for monster in self.monsters:
 			if monster.hp <= 0:
+				if monster.model:
+					monster.model.removeNode()
+					monster.model = None
 				continue
 			monster.stamina += monster.data.recovery * dt
 
