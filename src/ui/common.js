@@ -30,9 +30,11 @@ function navEnter() {
 }
 
 function switchToTab(id) {
-    $('#tabs a[href=#' + id + ']').tab('show');
-    $('.nav').removeClass('current');
-    $('#' + id + ' .nav').addClass('current');
-    $('.nav.current li').removeClass('active');
-    $('.nav.current li').first().addClass('active');
+    if ($('#tabs .active > a').attr('href') != '#' + id) {
+        $('#tabs a[href=#' + id + ']').tab('show');
+        $('.nav').removeClass('current');
+        $('#' + id + ' .nav').addClass('current');
+        $('.nav.current li').removeClass('active');
+        $('.nav.current li').first().addClass('active');
+    }
 }
