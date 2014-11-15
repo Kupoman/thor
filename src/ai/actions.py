@@ -1,5 +1,16 @@
-def use_tech(data):
-	if data.stamina < 20:
+import random
+
+
+def use_tech(agent):
+	if not agent.targets:
 		return
-	print(data.data.name, "uses a technique!")
-	data.stamina -= 20
+
+	techniques = [t for t in agent.data.techniques if t.cost < agent.stamina]
+
+	if not techniques:
+		return
+
+	tech = random.choice(techniques)
+	target = random.choice(agent.targets)
+
+	tech.use(agent, target)

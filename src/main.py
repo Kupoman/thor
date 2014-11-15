@@ -138,6 +138,9 @@ class CombatState(GameState):
 		self.combat_world.add_team(monster_list[1], pos_list[1], hpr_list[1])
 		self.teams = self.combat_world.teams
 
+		self.teams[0].set_targets(self.teams[1])
+		self.teams[1].set_targets(self.teams[0])
+
 		# Combatants
 		self.combatants = {}
 		self.combatants['red'] = self.player.monster

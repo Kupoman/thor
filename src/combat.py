@@ -11,6 +11,7 @@ class CombatMonster(object):
 		self.stamina = 50
 		self.model = base.loader.loadModel(self.data.visual)
 		self.model.reparentTo(base.render)
+		self.targets = []
 		self.ai_handle = -1
 
 	@property
@@ -32,6 +33,10 @@ class CombatTeam(object):
 		for i, monster in enumerate(self.monsters):
 			monster.model.setHpr(start_hpr)
 			monster.model.setPos(Vec3(start_pos) + offsets[i])
+
+	def set_targets(self, target_team):
+		for monster in self.monsters:
+			monster.targets = target_team.monsters
 
 	def get_percent_hp(self):
 		max = 0.0

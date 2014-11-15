@@ -13,7 +13,7 @@ class Technique(object):
 		rank_offset = 6
 		rank_gain =1.15
 		rank_effect = 15
-		return min((monster.accuracy + rank_effect * (rank_offset - rank_gain * cls.inaccuracy)), 95) / 100.0
+		return min((monster.data.accuracy + rank_effect * (rank_offset - rank_gain * cls.inaccuracy)), 95) / 100.0
 
 	@classmethod
 	def get_stamina_cost(cls, monster):
@@ -24,7 +24,7 @@ class Technique(object):
 	def get_damage_dealt(cls, monster):
 		rank_gain = 0.5
 		per_point = 2
-		return rank_gain * (cls.damage+1) * per_point * monster.attack
+		return rank_gain * (cls.damage+1) * per_point * monster.data.attack
 
 	@classmethod
 	def get_special_chance(cls, monster):
@@ -33,7 +33,7 @@ class Technique(object):
 	@classmethod
 	def use(cls, user, target):
 		# Apply cost
-		user.current_stamina -= cls.get_stamina_cost(user)
+		user.stamina -= cls.get_stamina_cost(user)
 
 		# Check for hit
 		if random.random() > cls.get_chance_to_hit(user):
@@ -41,12 +41,12 @@ class Technique(object):
 			return
 
 		# Check for evade
-		if random.random() < target.evasion:
+		if random.random() < target.data.evasion:
 			print("Dodged!")
 			return
 
 		# Apply damage
-		target.current_hp -= cls.get_damage_dealt(user)
+		target.hp -= cls.get_damage_dealt(user)
 
 
 class Scratch(Technique):
