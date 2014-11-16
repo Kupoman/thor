@@ -122,12 +122,6 @@ class CombatState(GameState):
 
 		self.clock = ClockObject()
 
-		# Set Camera
-		self.base.disableMouse()
-		self.base.camera.setPos(0, -5, 2.25)
-		self.base.camera.setHpr(0, -10, 0)
-		self.base.camLens.setFov(65)
-
 		g_race = "golem" if self.player.monster.race.lower() == "ogre" else "ogre"
 		hpr_list = ((-90, 0, 0), (90, 0, 0))
 		pos_list = ((-2, 2, 0), (2, 2, 0))
@@ -332,10 +326,6 @@ class FarmState(GameState):
 			'Speed',
 			'Back',
 		]
-		self.base.disableMouse()
-		self.base.camera.setPos(0, -5, 2.25)
-		self.base.camera.setHpr(0, -10, 0)
-		self.base.camLens.setFov(65)
 
 		self.base.background.setImage("art/menu_background.png")
 
@@ -501,6 +491,12 @@ class Game(ShowBase):
 
 		self.background = OnscreenImage(parent=self.render2dp, image="art/menu_background.png")
 		self.cam2dp.node().getDisplayRegion(0).setSort(-20)
+
+		# Setup camera
+		self.disableMouse()
+		self.camera.setPos(0, -5, 2.25)
+		self.camera.setHpr(0, -10, 0)
+		self.camLens.setFov(65)
 
 		# Setup saves
 		self.save_dir = os.path.join(appdirs.user_data_dir('ThorGame', roaming=True), 'saves')
