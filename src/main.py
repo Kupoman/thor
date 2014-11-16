@@ -332,6 +332,10 @@ class FarmState(GameState):
 			'Speed',
 			'Back',
 		]
+		self.base.disableMouse()
+		self.base.camera.setPos(0, -5, 2.25)
+		self.base.camera.setHpr(0, -10, 0)
+		self.base.camLens.setFov(65)
 
 		self.base.background.setImage("art/menu_background.png")
 
@@ -344,7 +348,23 @@ class FarmState(GameState):
 
 		def set_monster(race):
 			self.player.monster = Monster.new_from_race(race)
+			self.load_monster_mesh()
 		self.base.ui.set_js_function("set_monster", set_monster)
+
+		if self.player.monster:
+			self.load_monster_mesh()
+		else:
+			self.monster_mesh = None
+
+	def destroy(self):
+		GameState.destroy(self)
+		if self.monster_mesh:
+			self.monster_mesh.removeNode()
+
+	def load_monster_mesh(self):
+		self.monster_mesh = self.base.loader.loadModel(self.player.monster.visual)
+		self.monster_mesh.reparentTo(self.base.render)
+		self.monster_mesh.setH(180)
 
 	def do_escape(self):
 		if not self.in_market:
