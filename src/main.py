@@ -317,6 +317,7 @@ class FarmState(GameState):
 		self.nav = OrderedDict([
 			('Combat', self.do_combat),
 			('Training', self.do_training_menu),
+			('Rest', self.do_rest),
 			('Monster Info', self.do_monster_stats),
 			('Quit', self.do_exit),
 		])
@@ -333,8 +334,6 @@ class FarmState(GameState):
 		]
 
 		self.base.background.setImage("art/menu_background.png")
-		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
-
 
 		if self.player.monster is None:
 			self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
@@ -383,6 +382,9 @@ class FarmState(GameState):
 		self.base.ui.execute_js('switchToTab("{}")'.format('training-menu'))
 		self.base.ui.execute_js('setupNav({})'.format(self.training_options))
 
+	def do_rest(self):
+		self.player.weeks += 1
+
 	def do_training(self, stat):
 		stat = stat.lower()
 		if stat == 'back':
@@ -405,6 +407,11 @@ class FarmState(GameState):
 
 	def do_exit(self):
 		self.base.change_state(TitleState)
+
+	def main_loop(self):
+		GameState.main_loop(self)
+
+		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
 
 
 class TitleState(GameState):
