@@ -15,7 +15,8 @@ class Monster(object):
 		return Monster(**json_dictionary)
 
 	def __init__(self, name="Monster", race="Unknown", visual="", attack=20,
-			defense=20, intelligence=20, stamina=20, speed=20, age=0, life_span=20):
+			defense=20, intelligence=20, stamina=20, speed=20, age=0, life_span=20,
+			fatigue=0):
 		self.name = name
 		self.race = race
 		self.visual = visual
@@ -43,6 +44,8 @@ class Monster(object):
 
 		self.age = age
 		self.life_span = life_span
+
+		self.fatigue = fatigue
 
 		self.target = None
 		self.techniques = [techniques.Scratch]
@@ -95,5 +98,6 @@ class Monster(object):
 		data['speed'] = self.speed
 		data['age'] = self.age
 		data['life_span'] = self.life_span
+		data['fatigue'] = self.fatigue
 
 		return data

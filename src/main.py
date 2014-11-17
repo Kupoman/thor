@@ -336,6 +336,7 @@ class FarmState(GameState):
 			self.in_market = True
 		else:
 			self.in_market = False
+			self.advance_weeks(0)
 
 		def set_monster(race):
 			self.player.monster = Monster.new_from_race(race)
@@ -367,6 +368,7 @@ class FarmState(GameState):
 				self.do_training(item.lower())
 			elif nav == 'training-results':
 				self.do_escape()
+				self.advance_weeks()
 			elif nav == 'monster-info':
 				if item == 'Cancel':
 					self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
@@ -394,6 +396,7 @@ class FarmState(GameState):
 		self.base.ui.execute_js('setupNav({})'.format(self.training_options))
 
 	def do_rest(self):
+		self.player.monster.fatigue -= 60
 		self.advance_weeks()
 
 	def do_training(self, stat):
@@ -403,7 +406,7 @@ class FarmState(GameState):
 		else:
 			prev_stat = getattr(self.player.monster, stat)
 			setattr(self.player.monster, stat, prev_stat + 1)
-			self.advance_weeks()
+			self.player.monster.fatigue += 20
 			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player.monster, stat))
 			print(result_str)
 			self.base.ui.execute_js('switchToTab("{}")'.format('training-results'))
@@ -419,9 +422,30 @@ class FarmState(GameState):
 		self.base.change_state(TitleState)
 
 	def advance_weeks(self, weeks=1):
-		self.player.weeks += 1
-		self.player.monster.age += 1
+		self.player.weeks += weeks
+		self.player.monster.age += weeks
 		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
+
+		# Fatigue message
+		monster = self.player.monster
+		if monster.fatigue < 0:
+			monster.fatigue = 0
+		elif monster.fatigue > 100:
+			monster.fatigue = 100
+
+		msg = ""
+		if monster.fatigue < 20:
+			msg = "Monster is very well"
+		elif monster.fatigue < 40:
+			msg = "Monster is well"
+		elif monster.fatigue < 60:
+			msg = "Monster seems well"
+		elif monster.fatigue < 80:
+			msg = "Monster is tired"
+		else:
+			msg = "Monster is very tired"
+
+		print(msg)
 
 	def main_loop(self):
 		GameState.main_loop(self)
