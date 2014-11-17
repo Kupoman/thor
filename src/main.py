@@ -328,6 +328,7 @@ class FarmState(GameState):
 		]
 
 		self.base.background.setImage("art/menu_background.png")
+		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
 
 		if self.player.monster is None:
 			self.base.ui.execute_js('switchToTab("{}")'.format('market'), onload=True)
@@ -393,7 +394,7 @@ class FarmState(GameState):
 		self.base.ui.execute_js('setupNav({})'.format(self.training_options))
 
 	def do_rest(self):
-		self.player.weeks += 1
+		self.advance_weeks()
 
 	def do_training(self, stat):
 		stat = stat.lower()
@@ -402,13 +403,12 @@ class FarmState(GameState):
 		else:
 			prev_stat = getattr(self.player.monster, stat)
 			setattr(self.player.monster, stat, prev_stat + 1)
-			self.player.weeks += 1
+			self.advance_weeks()
 			result_str = "Raising stat {} from {} to {}.".format(stat.title(), prev_stat, getattr(self.player.monster, stat))
 			print(result_str)
 			self.base.ui.execute_js('switchToTab("{}")'.format('training-results'))
 			self.base.ui.execute_js('setupNav({})'.format(['Okay']))
 			self.base.ui.execute_js('setTrainingResults("{}")'.format(result_str))
-			self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks))
 
 	def do_monster_stats(self):
 		self.base.ui.execute_js('switchToTab("{}")'.format('monster-info'))
@@ -418,10 +418,18 @@ class FarmState(GameState):
 	def do_exit(self):
 		self.base.change_state(TitleState)
 
+	def advance_weeks(self, weeks=1):
+		self.player.weeks += 1
+		self.player.monster.age += 1
+		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
+
 	def main_loop(self):
 		GameState.main_loop(self)
 
-		self.base.ui.execute_js('setWeeks({})'.format(self.player.weeks), onload=True)
+		if self.player.monster and self.player.monster.age >= self.player.monster.life_span:
+			print("Your monster is dead, lets get a new one.")
+			self.player.monster = None
+			self.base.change_state(FarmState)
 
 
 class TitleState(GameState):
