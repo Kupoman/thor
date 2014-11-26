@@ -59,6 +59,10 @@
         </div>
     </div>
 
+    <div id="msg-box">
+        <div class="well"></div>
+    </div>
+
     <div class="white-with-shadow navbar-fixed-bottom">
         <h4 id="weeks"></h4>
     </div>
@@ -66,6 +70,8 @@
 {% endblock %}
 
 {% block script %}
+    var msg_queue = []
+
     function setWeeks(weeks) {
         $('#weeks').html('<span>Weeks: ' + weeks + '</span>');
     }
@@ -88,4 +94,29 @@
     function setMonster() {
         set_monster($('#market li.active a').html().toLowerCase());
     }
+
+    function addMessageToQueue(msg) {
+        msg_queue.push(msg);
+    }
+
+    function displayMessages() {
+        var msg = msg_queue.shift();
+        var msg_element = $('#msg-box .well');
+
+        msg_element.hide();
+
+        if (msg !== undefined) {
+            block_nav = true;
+            blocked_nav_enter_cb = displayMessages;
+            msg_element.fadeIn('fast');
+            msg_element.html(msg);
+        }
+        else {
+            block_nav = false;
+        }
+    }
+
+    $(document).ready(function() {
+        $('#msg-box .well').hide();
+    });
 {% endblock %}

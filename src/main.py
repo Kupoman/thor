@@ -445,7 +445,8 @@ class FarmState(GameState):
 		else:
 			msg = "Monster is very tired"
 
-		print(msg)
+		self.base.ui.execute_js('addMessageToQueue("{}")'.format(msg), onload=True)
+		self.base.ui.execute_js('displayMessages()', onload=True)
 
 	def main_loop(self):
 		GameState.main_loop(self)
