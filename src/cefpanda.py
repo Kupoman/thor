@@ -115,13 +115,17 @@ class CEFPanda(object):
 	# before load_string() will work.
 	# CEFPython issue: https://code.google.com/p/chromiumembedded/issues/detail?id=763
 	def load_string(self, string, url):
-		url = os.path.abspath(url if sys.platform == "win32" else "file://" + url)
+		url = os.path.abspath(url)
+		if sys.platform != 'win32':
+			url = 'file://' + url
 		self._is_loaded = False
 		self.browser.GetMainFrame().LoadString(string, url)
 
 	def load(self, url):
 		if url:
-			url = os.path.abspath(url if sys.platform == "win32" else "file://" + url)
+			url = os.path.abspath(url)
+			if sys.platform != 'win32':
+				url = 'file://' + url
 			self._is_loaded = False
 			self.browser.GetMainFrame().LoadUrl(url)
 		else:
