@@ -87,7 +87,11 @@ class CEFPanda(object):
 		self._set_browser_size()
 		base.accept('window-event', self._set_browser_size)
 
-		base.win.addPythonEventHandler(self._handle_key, "_handle_keys")
+		if sys.platform == 'win32':
+			base.win.addPythonEventHandler(self._handle_win_key, "_handle_win_keys")
+		else:
+			base.buttonThrowers[0].node().setKeystrokeEvent('keystroke')
+			base.accept('keystroke', self._handle_key)
 
 		base.taskMgr.add(self._cef_message_loop, "CefMessageLoop")
 
@@ -162,7 +166,7 @@ class CEFPanda(object):
 			# self._cef_texture.set_ram_image(img)
 			self.browser.WasResized()
 
-	def _handle_key(self, key):
+	def _handle_win_key(self, key):
 		msgtypes = {
 			0x100: cefpython.KEYEVENT_KEYDOWN,
 			0x101: cefpython.KEYEVENT_KEYUP,
@@ -175,6 +179,26 @@ class CEFPanda(object):
 			}
 
 			self.browser.SendKeyEvent(keyevent)
+
+	def _handle_key(self, keyname):
+		keycode = ord(keyname)
+
+		if keycode == cefpython.VK_BACK:
+			keycode = 65288
+		elif keycode == cefpython.VK_RETURN:
+			keycode = 65293
+
+		keyevent = {
+			"type": cefpython.KEYEVENT_RAWKEYDOWN,
+			"native_key_code": keycode,
+		}
+		self.browser.SendKeyEvent(keyevent)
+
+		keyevent['type'] = cefpython.KEYEVENT_KEYUP
+		self.browser.SendKeyEvent(keyevent)
+
+		keyevent['type'] = cefpython.KEYEVENT_CHAR
+		self.browser.SendKeyEvent(keyevent)
 
 	def _cef_message_loop(self, task):
 		cefpython.MessageLoopWork()
