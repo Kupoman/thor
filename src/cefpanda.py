@@ -44,7 +44,7 @@ class CEFPanda(object):
 	def __init__(self):
 		cefpython.Initialize({
 			"log_severity": cefpython.LOGSEVERITY_INFO,
-			"release_dcheck_enabled": True,  # Enable only when debugging
+			"release_dcheck_enabled": False,  # Enable only when debugging
 			# This directories must be set on Linux
 			"locales_dir_path": cefpython.GetModuleDirectory()+"/locales",
 			"resources_dir_path": cefpython.GetModuleDirectory(),
